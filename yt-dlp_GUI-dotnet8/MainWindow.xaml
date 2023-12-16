@@ -1,0 +1,252 @@
+﻿<Window xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"  x:Class="yt_dlp_GUI_dotnet8.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:yt_dlp_GUI_dotnet8"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="yt-dlp_GUI" Background="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}" Width="582" MinWidth="1024" MinHeight="765">
+    <TabControl
+  Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
+  BorderThickness="0"
+  BorderBrush="Transparent"
+  TabStripPlacement="Left"
+  materialDesign:ShadowAssist.ShadowDepth="Depth0"
+  materialDesign:ColorZoneAssist.Mode="Standard"
+  SnapsToDevicePixels="True"
+  materialDesign:NavigationRailAssist.ShowSelectionBackground="True">
+        <materialDesign:NavigationRailAssist.FloatingContent>
+            <Button
+      Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+      Content="{materialDesign:PackIcon Kind=CloudDownload}"
+      Margin="8" Click="download_Click" />
+        </materialDesign:NavigationRailAssist.FloatingContent>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel
+        Height="auto"
+        Width="auto">
+                    <materialDesign:PackIcon
+          Kind="Download"
+          Width="24"
+          Height="24"
+          HorizontalAlignment="Center" />
+                    <TextBlock
+          Text="Download"
+          HorizontalAlignment="Center" />
+                </StackPanel>
+            </TabItem.Header>
+            <Grid>
+                <Button Margin="10,0,0,19" Content="Clear" Name="Clear" Click="Clear_Click" HorizontalAlignment="Left" Width="127" Height="32" VerticalAlignment="Bottom"></Button>
+                <ListView IsEnabled="True" Name="list" Margin="0,56,0,56" >
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="URL" DisplayMemberBinding="{Binding url}"/>
+                            <GridViewColumn Header="拡張子" DisplayMemberBinding="{Binding extension}" />
+                            <GridViewColumn Header="ファイルサイズ" DisplayMemberBinding="{Binding Size}" />
+                            <GridViewColumn Header="予想時間" DisplayMemberBinding="{Binding ETA}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ProgressBar ValueChanged="prog_ValueChanged" Name="prog" Margin="10,0,10,10" IsEnabled="True" Minimum="0.01" Maximum="1" Height="4" VerticalAlignment="Bottom"/>
+                <Button Margin="142,0,0,19" Content="Let's Go" x:Name="Go" Click="Start_Click" HorizontalAlignment="Left" Width="127" Height="32" VerticalAlignment="Bottom"/>
+            </Grid>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel
+        Height="auto"
+        Width="auto">
+                    <materialDesign:PackIcon
+          Kind="ClockOutline"
+          Width="24"
+          Height="24"
+          HorizontalAlignment="Center" />
+                    <TextBlock
+          Text="Recent"
+          HorizontalAlignment="Center" />
+                </StackPanel>
+            </TabItem.Header>
+            <TextBlock Margin="0,0,2,0">
+      <ListView ItemsSource="{Binding recent}">
+          
+      </ListView>
+            </TextBlock>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel
+        Height="auto"
+        Width="auto">
+                    <materialDesign:PackIcon
+          Kind="Web"
+          Width="24"
+          Height="24"
+          HorizontalAlignment="Center" />
+                    <TextBlock
+          Text="Browser"
+          HorizontalAlignment="Center" />
+                </StackPanel>
+            </TabItem.Header>
+            <Grid>
+                <materialDesign:ColorZone
+  Mode="PrimaryMid"
+  Padding="16">
+                    <DockPanel>
+                        <StackPanel
+      Orientation="Horizontal"
+      materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:ColorZone
+        Mode="Standard"
+        Padding="8 4 8 4"
+        CornerRadius="2"
+        Panel.ZIndex="1"
+        Margin="16 0 0 0"
+        materialDesign:ShadowAssist.ShadowDepth="Depth1" Width="352">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition
+              Width="Auto" />
+                                        <ColumnDefinition
+              Width="*" />
+                                        <ColumnDefinition
+              Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+            Style="{DynamicResource MaterialDesignToolButton}"
+                                        Click="Search_Clicked">
+                                        <materialDesign:PackIcon
+              Kind="Search"
+              Opacity=".56" />
+                                    </Button>
+                                    <TextBox
+            Grid.Column="1"
+            Margin="8 0 0 0"
+            materialDesign:HintAssist.Hint="既定の検索エンジンで検索するか、URLを入力してください"
+            materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+            BorderThickness="0"
+            MinWidth="200"
+            VerticalAlignment="Center"
+                                        Name="SearchBox"/>
+                                    <Button
+            Style="{DynamicResource MaterialDesignToolButton}"
+            Grid.Column="2"/>
+                                </Grid>
+                            </materialDesign:ColorZone>
+                            <Button
+        Style="{DynamicResource MaterialDesignToolForegroundButton}"
+        Margin="8 0 0 0"
+        Panel.ZIndex="0"
+                                Click="Search_Clicked">
+                                <materialDesign:PackIcon
+          Kind="SearchWeb" />
+                            </Button>
+                            <Button x:Name="left" Margin="9 0 0 0" Click="left_Click">
+                                <materialDesign:PackIcon Kind="ArrowLeft" />
+                            </Button>
+                            <Button x:Name="reload" Margin="9 0 0 0" Click="reload_Click">
+                                <materialDesign:PackIcon Kind="Reload" />
+                            </Button>
+                            <Button x:Name="right" Margin="9 0 0 0" Click="right_Click">
+                                <materialDesign:PackIcon Kind="ArrowRight" />
+                            </Button>
+                            <materialDesign:Badged
+  Badge="{materialDesign:PackIcon Kind=Download}"
+  BadgeColorZoneMode="SecondaryMid">
+                                <Button Margin="9 5 0 0" Name="download" Click="download_Click_1"
+    Content="DLリストに追加"
+    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                            </materialDesign:Badged>
+                        </StackPanel>
+                    </DockPanel>
+                </materialDesign:ColorZone>
+                <Wpf:WebView2 x:Name="webview" Margin="0,72,0,0"/>
+            </Grid>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel
+        Height="auto"
+        Width="auto">
+                    <materialDesign:PackIcon
+          Kind="Settings"
+          Width="24"
+          Height="24"
+          HorizontalAlignment="Center" />
+                    <TextBlock
+          Text="Settings"
+          HorizontalAlignment="Center" />
+                </StackPanel>
+            </TabItem.Header>
+            <StackPanel>
+                <Grid Height="56">
+                    <Label Content="YouTubeのクッキーを使用する"  HorizontalAlignment="Left" Width="151" Margin="34,16,0,12" />
+                    <ToggleButton 
+                                        Name="cookie"
+                                        ToggleButton.Checked="cookie_Checked"
+                                        ToggleButton.Unchecked="cookie_Unchecked"
+                                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                                        IsChecked="False"  RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="34" Margin="0,2,0,-2" >
+                    </ToggleButton>
+                    <PasswordBox
+                                        x:Name="PasswordBox"
+                                        materialDesign:HintAssist.Hint="Cookie"
+                                        materialDesign:TextFieldAssist.HasClearButton="True" 
+                                        IsEnabled="False" Margin="190,14,297,10">
+                    </PasswordBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label Content="Yoho"  HorizontalAlignment="Left" Width="151" Margin="34,16,0,12" />
+                    <ToggleButton 
+                        x:Name="cookie1"
+                        Checked="cookie_Checked"
+                        Unchecked="cookie_Unchecked"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        IsChecked="False"  RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="34" Margin="0,2,0,-2" />
+                    <PasswordBox
+                        x:Name="PasswordBox1"
+                        materialDesign:HintAssist.Hint="Se"
+                        materialDesign:TextFieldAssist.HasClearButton="True" 
+                        IsEnabled="False" Margin="190,14,297,10"/>
+                </Grid>
+                <Grid Height="56">
+                    <Label Content="指定した解像度を強制する"  HorizontalAlignment="Left" Width="151" Margin="34,16,0,12" />
+                    <ToggleButton 
+                        x:Name="SetPixel"
+                        Checked="SetPixel_Checked"
+                        Unchecked="SetPixel_Unchecked"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        IsChecked="False"  RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="34" Margin="0,2,0,-2" />
+                    <ComboBox   Name="combo"
+                                IsEnabled="False"
+                                materialDesign:HintAssist.Hint="解像度"
+                                Margin="190,14,297,10">
+                        <ComboBoxItem
+                                        Content="144p" />
+                        <ComboBoxItem
+                                        Content="240p" />
+                        <ComboBoxItem
+                                        Content="360p" />
+                        <ComboBoxItem
+                                        Content="480p" />
+                        <ComboBoxItem
+                                        Content="720p" />
+                        <ComboBoxItem
+                                        Content="1080p" />
+                        <ComboBoxItem
+                                        Content="1440p" />
+                        <ComboBoxItem
+                                        Content="2160p" />
+                        <ComboBoxItem
+                                        Content="7680p" />
+                    </ComboBox>
+                </Grid>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+
+</Window>
