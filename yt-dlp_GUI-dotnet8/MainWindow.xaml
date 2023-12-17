@@ -8,33 +8,34 @@
         mc:Ignorable="d"
         Title="yt-dlp_GUI" Background="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}" Width="582" MinWidth="1024" MinHeight="765">
     <TabControl
-  Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
-  BorderThickness="0"
-  BorderBrush="Transparent"
-  TabStripPlacement="Left"
-  materialDesign:ShadowAssist.ShadowDepth="Depth0"
-  materialDesign:ColorZoneAssist.Mode="Standard"
-  SnapsToDevicePixels="True"
-  materialDesign:NavigationRailAssist.ShowSelectionBackground="True">
+                  Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
+                  BorderThickness="0"
+                  BorderBrush="Transparent"
+                  TabStripPlacement="Left"
+                  materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                  materialDesign:ColorZoneAssist.Mode="Standard"
+                  SnapsToDevicePixels="True"
+                  materialDesign:NavigationRailAssist.ShowSelectionBackground="True">
         <materialDesign:NavigationRailAssist.FloatingContent>
             <Button
-      Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
-      Content="{materialDesign:PackIcon Kind=CloudDownload}"
-      Margin="8" Click="download_Click" />
+                        Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                        Content="{materialDesign:PackIcon Kind=CloudDownload}"
+                        Margin="8" Click="download_Click" />
         </materialDesign:NavigationRailAssist.FloatingContent>
         <TabItem>
             <TabItem.Header>
                 <StackPanel
-        Height="auto"
-        Width="auto">
+                            Height="auto"
+                            Width="auto">
                     <materialDesign:PackIcon
-          Kind="Download"
-          Width="24"
-          Height="24"
-          HorizontalAlignment="Center" />
+                                                 Kind="Download"
+                                                 Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Center" />
                     <TextBlock
-          Text="Download"
-          HorizontalAlignment="Center" />
+                                Text="Download"
+                                FontSize="12"
+                                HorizontalAlignment="Center" />
                 </StackPanel>
             </TabItem.Header>
             <Grid>
@@ -51,26 +52,29 @@
                 </ListView>
                 <ProgressBar ValueChanged="prog_ValueChanged" Name="prog" Margin="10,0,10,10" IsEnabled="True" Minimum="0.01" Maximum="1" Height="4" VerticalAlignment="Bottom"/>
                 <Button Margin="142,0,0,19" Content="Let's Go" x:Name="Go" Click="Start_Click" HorizontalAlignment="Left" Width="127" Height="32" VerticalAlignment="Bottom"/>
+                <Label Name="progText" Content="0%" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <Label Name="txtState" Content="fewwe" HorizontalAlignment="Left" Margin="227,10,0,0" VerticalAlignment="Top"/>
             </Grid>
         </TabItem>
         <TabItem>
             <TabItem.Header>
                 <StackPanel
-        Height="auto"
-        Width="auto">
+                            Height="auto"
+                            Width="auto">
                     <materialDesign:PackIcon
-          Kind="ClockOutline"
-          Width="24"
-          Height="24"
-          HorizontalAlignment="Center" />
+                                              Kind="ClockOutline"
+                                              Width="24"
+                                              Height="24"
+                                              HorizontalAlignment="Center" />
                     <TextBlock
-          Text="Recent"
-          HorizontalAlignment="Center" />
+                                Text="Recent"
+                                FontSize="12"
+                                HorizontalAlignment="Center" />
                 </StackPanel>
             </TabItem.Header>
             <TextBlock Margin="0,0,2,0">
       <ListView ItemsSource="{Binding recent}">
-          
+     
       </ListView>
             </TextBlock>
         </TabItem>
@@ -176,6 +180,7 @@
           HorizontalAlignment="Center" />
                     <TextBlock
           Text="Settings"
+                                                FontSize="12"
           HorizontalAlignment="Center" />
                 </StackPanel>
             </TabItem.Header>
@@ -243,6 +248,101 @@
                                         Content="2160p" />
                         <ComboBoxItem
                                         Content="7680p" />
+                    </ComboBox>
+                </Grid>
+            </StackPanel>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel
+Height="auto"
+Width="auto">
+                    <materialDesign:PackIcon
+  Kind="Info"
+  Width="24"
+  Height="24"
+  HorizontalAlignment="Center" />
+                    <TextBlock
+  Text="Infomation"
+                        FontSize="12"
+  HorizontalAlignment="Center" />
+                </StackPanel>
+            </TabItem.Header>
+            <StackPanel>
+                <Grid Height="263">
+                    <GroupBox
+  Header="Thumbnail"
+  Style="{DynamicResource MaterialDesignCardGroupBox}"
+  Margin="16,16,0,10" HorizontalAlignment="Left" Width="289">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel
+        Orientation="Horizontal">
+                                    <materialDesign:PackIcon
+          Kind="ImageArea"
+          Height="32"
+          Width="32"
+          VerticalAlignment="Center" />
+                                    <TextBlock
+          Margin="8,0,0,0"
+          VerticalAlignment="Center"
+          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+          Text="{Binding}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+                        <Image
+    Source="Picture/muhu.jpg"
+    VerticalAlignment="Center"
+    HorizontalAlignment="Center" />
+                    </GroupBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label Content="Yoho"  HorizontalAlignment="Left" Width="151" Margin="34,16,0,12" />
+                    <ToggleButton 
+            x:Name="gstrhe"
+            Checked="cookie_Checked"
+            Unchecked="cookie_Unchecked"
+            Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+            ToolTip="MaterialDesignSwitchLightToggleButton"
+            IsChecked="False"  RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="34" Margin="0,2,0,-2" />
+                    <PasswordBox
+            x:Name="dtetwe"
+            materialDesign:HintAssist.Hint="Se"
+            materialDesign:TextFieldAssist.HasClearButton="True" 
+            IsEnabled="False" Margin="190,14,297,10"/>
+                </Grid>
+                <Grid Height="56">
+                    <Label Content="指定した解像度を強制する"  HorizontalAlignment="Left" Width="151" Margin="34,16,0,12" />
+                    <ToggleButton 
+            x:Name="df"
+            Checked="SetPixel_Checked"
+            Unchecked="SetPixel_Unchecked"
+            Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+            ToolTip="MaterialDesignSwitchLightToggleButton"
+            IsChecked="False"  RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="34" Margin="0,2,0,-2" />
+                    <ComboBox   Name="d"
+                    IsEnabled="False"
+                    materialDesign:HintAssist.Hint="解像度"
+                    Margin="190,14,297,10">
+                        <ComboBoxItem
+                            Content="144p" />
+                        <ComboBoxItem
+                            Content="240p" />
+                        <ComboBoxItem
+                            Content="360p" />
+                        <ComboBoxItem
+                            Content="480p" />
+                        <ComboBoxItem
+                            Content="720p" />
+                        <ComboBoxItem
+                            Content="1080p" />
+                        <ComboBoxItem
+                            Content="1440p" />
+                        <ComboBoxItem
+                            Content="2160p" />
+                        <ComboBoxItem
+                            Content="7680p" />
                     </ComboBox>
                 </Grid>
             </StackPanel>

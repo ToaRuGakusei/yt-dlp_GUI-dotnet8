@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using YoutubeDLSharp;
+using YoutubeDLSharp.Metadata;
 
 namespace yt_dlp_GUI_dotnet8
 {
@@ -14,12 +15,18 @@ namespace yt_dlp_GUI_dotnet8
     /// </summary>
     public partial class MainWindow : Window
     {
+        private IProgress<DownloadProgress> progress;
+
         public MainWindow()
         {
             InitializeComponent();
             InitializeAsync();
             QuestionDownloadFirst();
+            progress = new Progress<DownloadProgress>((p) => showProgress(p));
         }
+        /// <summary>
+        /// ここでWebView関連の設定を行っている
+        /// </summary>
         private async void InitializeAsync()
         {
             //初期化完了時のイベント
@@ -32,6 +39,9 @@ namespace yt_dlp_GUI_dotnet8
 
 
         }
+        //
+        private VideoData video;
+        FormatData[] formats;
 
         private async void DownloadAsync()
         {
@@ -47,16 +57,22 @@ namespace yt_dlp_GUI_dotnet8
 
             await Task.Run(() =>
             {
-                // a cancellation token source used for cancelling the download
-                // use `cts.Cancel();` to perform cancellation
-
                 var cts = new CancellationTokenSource();
                 this.Dispatcher.Invoke((Action)(() =>
                 {
-                    var progress = new Progress<DownloadProgress>(p => prog.Value = p.Progress);
-                    ytdl.RunVideoDownload("https://www.youtube.com/watch?v=0hEHl7JNywE",
+                    ytdl.RunVideoDownload(webview.CoreWebView2.Source,
                                progress: progress, ct: cts.Token);
+                    /*var res = await ytdl.RunVideoDataFetch("https://www.youtube.com/watch?v=OSHNSq0rA3s");
+                    // get some video information
+                    video = res.Data;
+                    Debug.WriteLine($"video={video}\ntitle={title}\nuploader={uploader}\nviews={views}\nformats={formats.ToString()}");
+                    */
                 }));
+                /*foreach( var format in formats )
+                {
+                    Debug.WriteLine(format);
+                }*/
+                
             });
         }
 
@@ -94,6 +110,13 @@ namespace yt_dlp_GUI_dotnet8
 
 
         }
+        private void showProgress(DownloadProgress p)
+        {
+            txtState.Content = p.State.ToString();
+            prog.Value = p.Progress;
+            progText.Content = $"speed: {p.DownloadSpeed} | left: {p.ETA}";
+        }
+
         private void NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
         {
             //新しいウィンドウを開かなくする
