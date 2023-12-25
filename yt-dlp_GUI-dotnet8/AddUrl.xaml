@@ -1,0 +1,30 @@
+﻿<Window xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf" x:Class="yt_dlp_GUI_dotnet8.AddUrl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:yt_dlp_GUI_dotnet8"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Background="White"
+        Title="AddUrl" Height="450" Width="800" MinWidth="800" MinHeight="450" MaxWidth="800" MaxHeight="450">
+    <StackPanel>
+        <Grid Height="370">
+            <GroupBox
+            Header="URLを入力してください（複数可）"
+            Margin="16">
+                <TextBox
+            Text="ここにURLを貼ってね" 
+            Name="Box"
+            AcceptsReturn="True"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.CanContentScroll="True"/>
+            </GroupBox>
+        </Grid>
+        <Grid>
+            <Button Name="Add" Content="追加" Click="Add_Click" Margin="353,0,353,31"/>
+        </Grid>
+
+    </StackPanel>
+</Window>
