@@ -98,8 +98,8 @@ namespace yt_dlp_GUI_dotnet8
                 WriteWeblocLink = true,
                 PostprocessorArgs = new[]
     {
-        "ffmpeg:-vcodec h264_qsv",
-                "ffmpeg_i1:-hwaccel qsv -hwaccel_output_format qsv"
+        "ffmpeg:-vcodec h264_qsv"/*,
+                "ffmpeg_i1:-hwaccel qsv -hwaccel_output_format qsv"*/
 
     }
 
@@ -357,26 +357,15 @@ namespace yt_dlp_GUI_dotnet8
         }
         private async void Info_Search(object sender, RoutedEventArgs e)
         {
-            var ytdl = new YoutubeDL();
-            ytdl.YoutubeDLPath = @".\yt-dlp.exe";
-            ytdl.FFmpegPath = @".\ffmpeg.exe";
             if (SearchBox_Info.Text != "" && SearchBox_Info.Text.Contains("https://"))
             {
-                try
-                {
-                    var res = await ytdl.RunVideoDataFetch(SearchBox_Info.Text);
-                    // get some video information
-                    video = res.Data;
-                    BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
-                    thumbPic.Source = bti;
-                    VideoTitle.Header = video.Title;
-                    VidInfo.Text = video.ToString();
+                GetInfomation get = new GetInfomation();
+                var video = await get.Infomation(SearchBox_Info.Text);
+                BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
+                thumbPic.Source = bti;
+                VideoTitle.Header = video.Title;
+                VidInfo.Text = video.ToString();
 
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("何らかのエラーにより、処理ができませんでした。\nURLが正しいかご確認ください。");
-                }
 
             }
             else

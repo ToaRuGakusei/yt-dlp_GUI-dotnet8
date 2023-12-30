@@ -228,12 +228,14 @@
             </TabItem.Header>
             <ScrollViewer>
                 <StackPanel Name="StackPanel_Info">
-                    <Grid Background="Gray">
+                    <materialDesign:ColorZone Mode="Light" Width="336" Height="46" >
                         <Grid
                             Width="336"
-                            Margin="0,14,0,10"
+                            Margin="0,10,0,10"
                             HorizontalAlignment="Center"
-                            Background="White">
+                            VerticalAlignment="Center"
+                            Name="searchFore"
+                            >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -251,7 +253,7 @@
                             <Button
                                 Grid.Column="1"
                                 Grid.ColumnSpan="2"
-                                Margin="303,0,0,0"
+                                Margin="303,-3,0,0"
                                 Click="Info_Search"
                                 Style="{DynamicResource MaterialDesignToolButton}">
                                 <materialDesign:PackIcon
@@ -261,7 +263,7 @@
                                     Opacity=".56" />
                             </Button>
                         </Grid>
-                    </Grid>
+                    </materialDesign:ColorZone>
                     <Grid Height="403" Background="Gray">
                         <GroupBox
                             Name="VideoTitle"
