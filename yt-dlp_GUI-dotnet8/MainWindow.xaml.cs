@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
+using YoutubeDLSharp.Options;
 
 namespace yt_dlp_GUI_dotnet8
 {
@@ -50,7 +51,7 @@ namespace yt_dlp_GUI_dotnet8
         //
         private VideoData video;
         FormatData[] formats;
-        public string folder ="none";
+        public string folder = "none";
         public bool cancel = false;
         private void DownloadAsync(string url)
         {
@@ -65,12 +66,12 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     ytdl.OutputFolder = dlg.FileName;
                     folder = dlg.FileName;
-                    DownloadVideo(url, ytdl);
+                    DownloadVideo(url, ytdl, VideoRecodeFormat.Mp4);
                 }
                 else
                 {
                     cancel = true;
-                    MessageBox.Show("キャンセルされました。","情報",MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("キャンセルされました。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
 
@@ -79,20 +80,36 @@ namespace yt_dlp_GUI_dotnet8
             {
                 ytdl.OutputFolder = folder;
 
-                DownloadVideo(url, ytdl);
+                DownloadVideo(url, ytdl, VideoRecodeFormat.Mp4);
             }
 
         }
 
-        private void DownloadVideo(string url, YoutubeDL ytdl)
+        private void DownloadVideo(string url, YoutubeDL ytdl, VideoRecodeFormat format)
         {
+            var options = new OptionSet()
+            {
+                Format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]",
+                RecodeVideo = VideoRecodeFormat.Mkv,
+                WriteThumbnail = true,
+                WriteSubs = true,
+                WriteAutoSubs = true,
+                WriteInfoJson = true,
+                WriteWeblocLink = true,
+                PostprocessorArgs = new[]
+    {
+        "ffmpeg:-vcodec h264_qsv",
+                "ffmpeg_i1:-hwaccel qsv -hwaccel_output_format qsv"
+
+    }
+
+            };
             var run = Task.Run(() =>
             {
                 var cts = new CancellationTokenSource();
                 this.Dispatcher.Invoke((Action)(() =>
                 {
-                    ytdl.RunVideoDownload(url,
-                               progress: progress, ct: cts.Token);
+                    ytdl.RunVideoDownload(url, progress: progress, ct: cts.Token, overrideOptions: options);
 
                 }));
                 /*foreach( var format in formats )
@@ -128,8 +145,8 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     try
                     {
-                        await YoutubeDLSharp.Utils.DownloadYtDlp();
-                        await YoutubeDLSharp.Utils.DownloadFFmpeg();
+                        Task ytdlp = YoutubeDLSharp.Utils.DownloadYtDlp();
+                        Task ffmpeg = YoutubeDLSharp.Utils.DownloadFFmpeg();
                     }
                     catch (Exception ex)
                     {
@@ -153,16 +170,17 @@ namespace yt_dlp_GUI_dotnet8
                 count += 1;
                 Debug.WriteLine($"Count::{count}");
             }
-            else if(p.State.ToString() == "Error")
+            else if (p.State.ToString() == "Error")
             {
                 MessageBox.Show("失敗");
+                Debug.WriteLine(p.State.ToString());
             }
-            if(count == list.Items.Count)
+            if (count == list.Items.Count)
             {
-                var done = MessageBox.Show("All Done!","情報",MessageBoxButton.OK, MessageBoxImage.Information);
-                if(done == MessageBoxResult.OK)
+                var done = MessageBox.Show("All Done!", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (done == MessageBoxResult.OK)
                 {
-                    list.ClearValue(ItemsControl.ItemsSourceProperty); 
+                    list.ClearValue(ItemsControl.ItemsSourceProperty);
                     folder = "none";
                     count = 0;
                     progText.Content = "Download States";
@@ -355,7 +373,7 @@ namespace yt_dlp_GUI_dotnet8
                     VidInfo.Text = video.ToString();
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("何らかのエラーにより、処理ができませんでした。\nURLが正しいかご確認ください。");
                 }
