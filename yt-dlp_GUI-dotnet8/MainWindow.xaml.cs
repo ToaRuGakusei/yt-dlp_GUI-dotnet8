@@ -1,13 +1,15 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using YoutubeDLSharp;
-using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 
 namespace yt_dlp_GUI_dotnet8
@@ -48,16 +50,23 @@ namespace yt_dlp_GUI_dotnet8
             StackPanel_Info.MaxHeight = this.Height;
         }
 
-        //
-        private VideoData video;
-        FormatData[] formats;
+        public static void ShowNotif(string title, string body)
+        {
+            new ToastContentBuilder()
+                        .AddText(title)
+                        .AddText(body)
+                        .SetToastDuration(ToastDuration.Long)
+                        .SetToastScenario(ToastScenario.Reminder)
+                        .Show();
+        }
+
         public string folder = "none";
         public bool cancel = false;
         private void DownloadAsync(string url)
         {
             var ytdl = new YoutubeDL();
             ytdl.YoutubeDLPath = @".\yt-dlp.exe";
-            ytdl.FFmpegPath = @".\ffmpeg.exe";
+            ytdl.FFmpegPath = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
             if (folder == "none")
             {
                 var dlg = new CommonOpenFileDialog();
@@ -66,7 +75,7 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     ytdl.OutputFolder = dlg.FileName;
                     folder = dlg.FileName;
-                    DownloadVideo(url, ytdl, VideoRecodeFormat.Mp4);
+                    DownloadVideo(url, ytdl, DownloadMergeFormat.Mkv);
                 }
                 else
                 {
@@ -80,30 +89,30 @@ namespace yt_dlp_GUI_dotnet8
             {
                 ytdl.OutputFolder = folder;
 
-                DownloadVideo(url, ytdl, VideoRecodeFormat.Mp4);
+                DownloadVideo(url, ytdl, DownloadMergeFormat.Mkv);
             }
 
         }
 
-        private void DownloadVideo(string url, YoutubeDL ytdl, VideoRecodeFormat format)
+        private void DownloadVideo(string url, YoutubeDL ytdl, DownloadMergeFormat format)
         {
             var options = new OptionSet()
             {
-                Format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]",
-                RecodeVideo = VideoRecodeFormat.Mkv,
+                Format = $"bestvideo[ext=mp4]+bestaudio[ext=m4a]",
                 WriteThumbnail = true,
                 WriteSubs = true,
                 WriteAutoSubs = true,
                 WriteInfoJson = true,
                 WriteWeblocLink = true,
-                PostprocessorArgs = new[]
-    {
-        "ffmpeg:-vcodec h264_qsv"/*,
-                "ffmpeg_i1:-hwaccel qsv -hwaccel_output_format qsv"*/
-
-    }
+                MergeOutputFormat = DownloadMergeFormat.Mkv,
+                EmbedChapters = true,
+                EmbedInfoJson = true,
+                EmbedSubs = true,
+                EmbedMetadata = true,
+                EmbedThumbnail = true
 
             };
+            //--format bestvideo+251/bestvideo+bestaudio/best --embed-subs --embed-thumbnail --all-subs --merge-output-format {mp4_mkv} --all-subs --embed-subs --embed-thumbnail --xattrs --add-metadata -i -ciw -o \"{saveFolder}\\%(title)s\" {_u} 19
             var run = Task.Run(() =>
             {
                 var cts = new CancellationTokenSource();
@@ -126,7 +135,7 @@ namespace yt_dlp_GUI_dotnet8
 
         private async void QuestionDownloadFirst()
         {
-            if (!File.Exists(@".\yt-dlp.exe") || !File.Exists(@".\ffmpeg.exe"))
+            if (!File.Exists(@".\yt-dlp.exe") || !File.Exists(@".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"))
             {
                 var result = MessageBox.Show("yt-dlpまたはffmpegが見つかりませんでした。\nダウンロードしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Cancel)
@@ -145,8 +154,21 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     try
                     {
-                        Task ytdlp = YoutubeDLSharp.Utils.DownloadYtDlp();
-                        Task ffmpeg = YoutubeDLSharp.Utils.DownloadFFmpeg();
+                        //ここでyt-dlpとffmpegダウンロードする
+                        FileDownloader fld = new FileDownloader();
+
+                        var ytdlp = await fld.GetContent("https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe");
+                        using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
+                        {
+                            //ファイルに書き込む
+                            ytdlp.WriteTo(fs);
+                            ytdlp.Close();
+                        }
+
+                        var ffmpeg = await fld.GetContent("https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip");
+                        ZipFile.ExtractToDirectory(ffmpeg, @".\");
+                        ffmpeg.Close();
+
                     }
                     catch (Exception ex)
                     {
@@ -177,16 +199,14 @@ namespace yt_dlp_GUI_dotnet8
             }
             if (count == list.Items.Count)
             {
-                var done = MessageBox.Show("All Done!", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
-                if (done == MessageBoxResult.OK)
-                {
-                    list.ClearValue(ItemsControl.ItemsSourceProperty);
-                    folder = "none";
-                    count = 0;
-                    progText.Content = "Download States";
-                    txtState.Content = "States";
+                ShowNotif("All Done!", "おわったお");
+                list.ClearValue(ItemsControl.ItemsSourceProperty);
+                folder = "none";
+                count = 0;
+                progText.Content = "Download States";
+                txtState.Content = "States";
+                dLLists.Clear();
 
-                }
 
             }
         }
@@ -301,7 +321,11 @@ namespace yt_dlp_GUI_dotnet8
             {
                 foreach (var url in urls)
                 {
-                    dLLists.Add(new DLList { url = url });
+                    
+                    if(IsValidUrl(url))
+                    {
+                        dLLists.Add(new DLList { url = url });
+                    }
                 }
                 list.ItemsSource = dLLists;
             }
@@ -311,6 +335,11 @@ namespace yt_dlp_GUI_dotnet8
             }
 
         }
+        public static bool IsValidUrl(string url)
+        {
+            return Uri.IsWellFormedUriString(url, UriKind.Absolute);
+        }
+
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             if (list.Items.Count == 0)
