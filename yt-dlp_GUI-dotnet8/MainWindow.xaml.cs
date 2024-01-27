@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -20,7 +19,8 @@ namespace yt_dlp_GUI_dotnet8
     public partial class MainWindow : Window
     {
         private IProgress<DownloadProgress> progress;
-
+        private string cookieBrowser;
+        private string videoFormat = "h265";
         public MainWindow()
         {
             InitializeComponent();
@@ -42,7 +42,13 @@ namespace yt_dlp_GUI_dotnet8
             webview.CoreWebView2.NewWindowRequested += NewWindowRequested;
             webview.CoreWebView2.SourceChanged += CompletedPage;
             SizeChanged += MainWindow_SizeChanged;
-
+            if (File.Exists(@".\Cookies.txt"))
+            {
+                using (StreamReader sm = new StreamReader(@".\Cookies.txt"))
+                {
+                    cookieBrowser = sm.ReadToEnd();
+                }
+            }
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -55,13 +61,14 @@ namespace yt_dlp_GUI_dotnet8
             new ToastContentBuilder()
                         .AddText(title)
                         .AddText(body)
-                        .SetToastDuration(ToastDuration.Long)
-                        .SetToastScenario(ToastScenario.Reminder)
+                        .SetToastDuration(ToastDuration.Short)
+                        .SetToastScenario(ToastScenario.Default)
                         .Show();
         }
 
         public string folder = "none";
         public bool cancel = false;
+        public Task run;
         private void DownloadAsync(string url)
         {
             var ytdl = new YoutubeDL();
@@ -93,29 +100,32 @@ namespace yt_dlp_GUI_dotnet8
             }
 
         }
-
+        public CancellationTokenSource cts;
         private void DownloadVideo(string url, YoutubeDL ytdl, DownloadMergeFormat format)
         {
             var options = new OptionSet()
             {
-                Format = $"bestvideo[ext=mp4]+bestaudio[ext=m4a]",
+                Format = $"bestvideo+251/bestvideo+bestaudio/best",
+                FormatSort = $"vcodec:{videoFormat}",
+                AudioFormat = AudioConversionFormat.Aac,
                 WriteThumbnail = true,
                 WriteSubs = true,
                 WriteAutoSubs = true,
                 WriteInfoJson = true,
                 WriteWeblocLink = true,
-                MergeOutputFormat = DownloadMergeFormat.Mkv,
+                MergeOutputFormat = DownloadMergeFormat.Mp4,
                 EmbedChapters = true,
                 EmbedInfoJson = true,
                 EmbedSubs = true,
                 EmbedMetadata = true,
-                EmbedThumbnail = true
+                EmbedThumbnail = true/*,
+                Cookies = cookieBrowser*/
 
             };
             //--format bestvideo+251/bestvideo+bestaudio/best --embed-subs --embed-thumbnail --all-subs --merge-output-format {mp4_mkv} --all-subs --embed-subs --embed-thumbnail --xattrs --add-metadata -i -ciw -o \"{saveFolder}\\%(title)s\" {_u} 19
-            var run = Task.Run(() =>
+            run = Task.Run(() =>
             {
-                var cts = new CancellationTokenSource();
+                cts = new CancellationTokenSource();
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     ytdl.RunVideoDownload(url, progress: progress, ct: cts.Token, overrideOptions: options);
@@ -163,11 +173,13 @@ namespace yt_dlp_GUI_dotnet8
                             //ファイルに書き込む
                             ytdlp.WriteTo(fs);
                             ytdlp.Close();
+                            ShowNotif("Download Done!", "YT-DLPのダウンロードが終わりました");
                         }
 
                         var ffmpeg = await fld.GetContent("https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip");
                         ZipFile.ExtractToDirectory(ffmpeg, @".\");
                         ffmpeg.Close();
+                        ShowNotif("Download Done!", "FFMPEGのダウンロードが終わりました");
 
                     }
                     catch (Exception ex)
@@ -177,8 +189,6 @@ namespace yt_dlp_GUI_dotnet8
 
                 }
             }
-
-
         }
         int count = 0;
         private void showProgress(DownloadProgress p)
@@ -191,6 +201,10 @@ namespace yt_dlp_GUI_dotnet8
             {
                 count += 1;
                 Debug.WriteLine($"Count::{count}");
+                dLLists.RemoveAt(0);
+                var b = ((DLList)list.Items[0]).url;
+                Debug.WriteLine(b);
+                DownloadAsync(b);
             }
             else if (p.State.ToString() == "Error")
             {
@@ -222,7 +236,6 @@ namespace yt_dlp_GUI_dotnet8
         private void CompletedPage(object sender, CoreWebView2SourceChangedEventArgs e)
         {
             SearchBox.Text = webview.CoreWebView2.Source;
-
         }
 
         private void WebView2_CoreWebView2InitializationCompleted(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
@@ -231,24 +244,9 @@ namespace yt_dlp_GUI_dotnet8
             webview.CoreWebView2.Navigate("https://google.com");
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void OutlinedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //if()
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void right_Click(object sender, RoutedEventArgs e)
@@ -301,11 +299,14 @@ namespace yt_dlp_GUI_dotnet8
         private void cookie_Checked(object sender, RoutedEventArgs e)
         {
             PasswordBox.IsEnabled = true;
+            Cookies.IsEnabled = true;
         }
 
         private void cookie_Unchecked(object sender, RoutedEventArgs e)
         {
             PasswordBox.IsEnabled = false;
+            Cookies.IsEnabled = false;
+
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
@@ -321,8 +322,8 @@ namespace yt_dlp_GUI_dotnet8
             {
                 foreach (var url in urls)
                 {
-                    
-                    if(IsValidUrl(url))
+
+                    if (IsValidUrl(url))
                     {
                         dLLists.Add(new DLList { url = url });
                     }
@@ -342,26 +343,28 @@ namespace yt_dlp_GUI_dotnet8
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
+            if (File.Exists(@".\Cookies.txt"))
+            {
+                using (StreamReader sm = new StreamReader(@".\Cookies.txt"))
+                {
+                    cookieBrowser = sm.ReadToEnd();
+                }
+            }
             if (list.Items.Count == 0)
             {
                 MessageBox.Show("URLを追加してください", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
-                foreach (var r in list.Items)
+                if (cancel == true)
                 {
-                    if (cancel == true)
-                    {
-                        cancel = false;
-                        folder = "none";
-                        break;
-
-                    }
-                    var a = (r as DLList)?.url;
-                    Debug.WriteLine(a);
-                    DownloadAsync(a);
+                    cancel = false;
+                    folder = "none";
 
                 }
+                var a = ((DLList)list.Items[0]).url;
+                Debug.WriteLine(a);
+                DownloadAsync(a);
             }
         }
 
@@ -395,7 +398,6 @@ namespace yt_dlp_GUI_dotnet8
                 VideoTitle.Header = video.Title;
                 VidInfo.Text = video.ToString();
 
-
             }
             else
             {
@@ -412,6 +414,41 @@ namespace yt_dlp_GUI_dotnet8
         private void CodecToggle_Unchecked(object sender, RoutedEventArgs e)
         {
             codec.IsEnabled = false;
+        }
+
+        private void Cookies_Clicked_Click(object sender, RoutedEventArgs e)
+        {
+            if (PasswordBox.Password != "")
+            {
+                using (StreamWriter sw = new StreamWriter(@".\Cookies.txt", false))
+                {
+                    sw.WriteLine(PasswordBox.Password);
+                }
+            }
+        }
+
+        private void combo_DropDownClosed(object sender, EventArgs e)
+        {
+            string sel = ((ComboBox)sender).Text;
+            Debug.WriteLine(sel);
+        }
+
+        private void codec_DropDownClosed(object sender, EventArgs e)
+        {
+            string sel = ((ComboBox)sender).Text;
+            Debug.WriteLine(sel);
+        }
+
+        private void cancel_Click(object sender, RoutedEventArgs e)
+        {
+            cts.Cancel();
+            dLLists.Clear();
+            ShowNotif("Cancel", "キャンセルされたお");
+            list.ClearValue(ItemsControl.ItemsSourceProperty);
+            folder = "none";
+            count = 0;
+            progText.Content = "Download States";
+            txtState.Content = "States";
         }
     }
 }

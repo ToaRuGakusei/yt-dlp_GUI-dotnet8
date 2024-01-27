@@ -62,6 +62,15 @@
                     VerticalAlignment="Bottom"
                     Click="Add_Url_List"
                     Content="URLを追加" />
+                <Button
+    Name="cl"
+    Width="127"
+    Height="32"
+    Margin="406,0,0,19"
+    HorizontalAlignment="Left"
+    VerticalAlignment="Bottom"
+    Click="cancel_Click"
+    Content="Cancel" />
                 <ListView
                     Name="list"
                     Margin="0,56,0,56"
@@ -122,9 +131,49 @@
                         Text="Recent" />
                 </StackPanel>
             </TabItem.Header>
-            <TextBlock Margin="0,0,2,0">
-                <ListView ItemsSource="{Binding recent}" />
-            </TextBlock>
+            <Grid Width="Auto" Height="Auto">
+                <ListView
+                    x:Name="listView_Recent"
+                    Margin="10,45,10,10"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    SelectionMode="Single">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="200" Header="Cover">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image
+                                                Width="200"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Source="{Binding image}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Page}" Header="Page" />
+                            <GridViewColumn
+                                Width="300"
+                                DisplayMemberBinding="{Binding URI}"
+                                Header="URL" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <Button
+                    Width="106"
+                    Height="32"
+                    Margin="26,8,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="Button_Click_1"
+                    Content="Clear" />
+            </Grid>
         </TabItem>
         <TabItem>
             <TabItem.Header>
@@ -226,16 +275,18 @@
                         Text="Infomation" />
                 </StackPanel>
             </TabItem.Header>
-            <ScrollViewer>
+            <ScrollViewer Width="Auto" Height="Auto">
                 <StackPanel Name="StackPanel_Info">
-                    <materialDesign:ColorZone Mode="Light" Width="336" Height="46" >
+                    <materialDesign:ColorZone
+                        Width="336"
+                        Height="46"
+                        Mode="Light">
                         <Grid
+                            Name="searchFore"
                             Width="336"
                             Margin="0,10,0,10"
                             HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Name="searchFore"
-                            >
+                            VerticalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -306,37 +357,14 @@
                     </GroupBox>
                     <GroupBox Margin="16" Header="なにか">
                         <TextBox
-                            Name="in"
+                            Name="nanika"
                             MaxHeight="300"
                             ScrollViewer.CanContentScroll="True"
                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                             Text="None" />
                     </GroupBox>
-                    <Grid Height="56">
-                        <Label
-                            Width="151"
-                            Margin="34,16,0,12"
-                            HorizontalAlignment="Left"
-                            Content="Yoho" />
-                        <ToggleButton
-                            x:Name="gstrhe1"
-                            Width="34"
-                            Margin="0,2,0,-2"
-                            HorizontalAlignment="Left"
-                            Checked="cookie_Checked"
-                            IsChecked="False"
-                            RenderTransformOrigin="0.5,0.5"
-                            Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                            ToolTip="MaterialDesignSwitchLightToggleButton"
-                            Unchecked="cookie_Unchecked" />
-                        <PasswordBox
-                            x:Name="dtetwe1"
-                            Margin="190,14,297,10"
-                            materialDesign:HintAssist.Hint="Se"
-                            materialDesign:TextFieldAssist.HasClearButton="True"
-                            IsEnabled="False" />
-                    </Grid>
+
                 </StackPanel>
             </ScrollViewer>
         </TabItem>
@@ -355,6 +383,13 @@
                 </StackPanel>
             </TabItem.Header>
             <StackPanel>
+                <Grid Height="56">
+                    <Label
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="yt-dlp関連の設定"
+                        FontSize="30" />
+                </Grid>
                 <Grid Height="56">
                     <Label
                         Width="151"
@@ -378,29 +413,13 @@
                         materialDesign:HintAssist.Hint="Cookie"
                         materialDesign:TextFieldAssist.HasClearButton="True"
                         IsEnabled="False" />
-                </Grid>
-                <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="Yoho" />
-                    <ToggleButton
-                        x:Name="cookie1"
-                        Width="34"
-                        Margin="0,2,0,-2"
-                        HorizontalAlignment="Left"
-                        Checked="cookie_Checked"
-                        IsChecked="False"
-                        RenderTransformOrigin="0.5,0.5"
-                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="cookie_Unchecked" />
-                    <PasswordBox
-                        x:Name="PasswordBox1"
-                        Margin="190,14,297,10"
-                        materialDesign:HintAssist.Hint="Se"
-                        materialDesign:TextFieldAssist.HasClearButton="True"
+                    <Button
+                        Name="Cookies"
+                        Width="116"
+                        Margin="0,14,148,10"
+                        HorizontalAlignment="Right"
+                        Click="Cookies_Clicked_Click"
+                        Content="保存"
                         IsEnabled="False" />
                 </Grid>
                 <Grid Height="56">
@@ -424,6 +443,7 @@
                         Name="combo"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="解像度"
+                        DropDownClosed="combo_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="144p" />
                         <ComboBoxItem Content="240p" />
@@ -438,26 +458,27 @@
                 </Grid>
                 <Grid Height="56">
                     <Label
-         Width="151"
-         Margin="34,16,0,12"
-         HorizontalAlignment="Left"
-         Content="指定したコーディックを強制する" />
+                        Width="151"
+                        Margin="34,16,0,12"
+                        HorizontalAlignment="Left"
+                        Content="指定したコーディックを強制する" />
                     <ToggleButton
-         x:Name="CodecToggle"
-         Width="34"
-         Margin="0,2,0,-2"
-         HorizontalAlignment="Left"
-         Checked="CodecToggle_Checked"
-         IsChecked="False"
-         RenderTransformOrigin="0.5,0.5"
-         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-         ToolTip="MaterialDesignSwitchLightToggleButton"
-         Unchecked="CodecToggle_Unchecked" />
+                        x:Name="CodecToggle"
+                        Width="34"
+                        Margin="0,2,0,-2"
+                        HorizontalAlignment="Left"
+                        Checked="CodecToggle_Checked"
+                        IsChecked="False"
+                        RenderTransformOrigin="0.5,0.5"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        Unchecked="CodecToggle_Unchecked" />
                     <ComboBox
-         Name="codec"
-         Margin="190,14,297,10"
-         materialDesign:HintAssist.Hint="コーディック"
-         IsEnabled="False">
+                        Name="codec"
+                        Margin="190,14,297,10"
+                        materialDesign:HintAssist.Hint="コーディック"
+                        DropDownClosed="codec_DropDownClosed"
+                        IsEnabled="False">
                         <ComboBoxItem Content="H264" />
                         <ComboBoxItem Content="H265" />
                         <ComboBoxItem Content="VP9" />
@@ -466,6 +487,13 @@
                         <ComboBoxItem Content="AAC" />
                         <ComboBoxItem Content="FLAC" />
                     </ComboBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="~関連の設定"
+                        FontSize="30" />
                 </Grid>
             </StackPanel>
         </TabItem>
