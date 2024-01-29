@@ -46,31 +46,31 @@
             <Grid>
                 <Button
                     Name="Clear"
-                    Width="127"
+                    Width="128"
                     Height="32"
-                    Margin="10,0,0,19"
+                    Margin="146,0,0,19"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Click="Clear_Click"
                     Content="Clear" />
                 <Button
                     Name="AddUrlList"
-                    Width="127"
+                    Width="128"
                     Height="32"
-                    Margin="274,0,0,19"
+                    Margin="410,0,0,19"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Click="Add_Url_List"
                     Content="URLを追加" />
                 <Button
-    Name="cl"
-    Width="127"
-    Height="32"
-    Margin="406,0,0,19"
-    HorizontalAlignment="Left"
-    VerticalAlignment="Bottom"
-    Click="cancel_Click"
-    Content="Cancel" />
+                    Name="cl"
+                    Width="127"
+                    Height="32"
+                    Margin="10,0,0,19"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Click="cancel_Click"
+                    Content="Cancel" />
                 <ListView
                     Name="list"
                     Margin="0,56,0,56"
@@ -92,9 +92,9 @@
                     ValueChanged="prog_ValueChanged" />
                 <Button
                     x:Name="Go"
-                    Width="127"
+                    Width="128"
                     Height="32"
-                    Margin="142,0,0,19"
+                    Margin="278,0,0,19"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Click="Start_Click"
@@ -275,8 +275,11 @@
                         Text="Infomation" />
                 </StackPanel>
             </TabItem.Header>
-            <ScrollViewer Width="Auto" Height="Auto">
-                <StackPanel Name="StackPanel_Info">
+            <ScrollViewer>
+                <StackPanel
+                    Name="StackPanel_Info"
+                    Width="Auto"
+                    Height="Auto">
                     <materialDesign:ColorZone
                         Width="336"
                         Height="46"
@@ -388,7 +391,8 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Content="yt-dlp関連の設定"
-                        FontSize="30" />
+                        FontSize="30"
+                        FontStyle="Italic" />
                 </Grid>
                 <Grid Height="56">
                     <Label
@@ -490,10 +494,39 @@
                 </Grid>
                 <Grid Height="56">
                     <Label
+                        Width="151"
+                        Margin="34,16,0,12"
+                        HorizontalAlignment="Left"
+                        Content="指定したオーディオコーディックを強制する" />
+                    <ToggleButton
+                        x:Name="Codec_Audio_Toggle"
+                        Width="34"
+                        Margin="0,2,0,-2"
+                        HorizontalAlignment="Left"
+                        Checked="Codec_Audio_Toggle_Checked"
+                        IsChecked="False"
+                        RenderTransformOrigin="0.5,0.5"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        Unchecked="Codec_Audio_Toggle_Unchecked" />
+                    <ComboBox
+                        Name="codec_Audio"
+                        Margin="190,14,297,10"
+                        materialDesign:HintAssist.Hint="オーディオコーディック"
+                        DropDownClosed="codec_Audio_DropDownClosed"
+                        IsEnabled="False">
+                        <ComboBoxItem Content="MP3" />
+                        <ComboBoxItem Content="AAC" />
+                        <ComboBoxItem Content="FLAC" />
+                    </ComboBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Content="~関連の設定"
-                        FontSize="30" />
+                        FontSize="30"
+                        FontStyle="Italic" />
                 </Grid>
             </StackPanel>
         </TabItem>

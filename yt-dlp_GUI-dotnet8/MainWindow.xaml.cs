@@ -190,7 +190,7 @@ namespace yt_dlp_GUI_dotnet8
                 }
             }
         }
-        int count = 0;
+        int count = 1;
         private void showProgress(DownloadProgress p)
         {
             txtState.Content = p.State.ToString();
@@ -199,29 +199,29 @@ namespace yt_dlp_GUI_dotnet8
             progText.Content = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             if (p.State.ToString() == "Success")
             {
-                count += 1;
-                Debug.WriteLine($"Count::{count}");
-                dLLists.RemoveAt(0);
-                var b = ((DLList)list.Items[0]).url;
-                Debug.WriteLine(b);
-                DownloadAsync(b);
+                if (dLLists.Count != count)
+                {
+                    count += 1;
+                    Debug.WriteLine($"Count::{count - 1}");
+                    var b = ((DLList)list.Items[count - 1]).url;
+                    Debug.WriteLine(b);
+                    DownloadAsync(b);
+                }else
+                {
+                    ShowNotif("All Done!", "おわったお");
+                    list.ClearValue(ItemsControl.ItemsSourceProperty);
+                    folder = "none";
+                    count = 0;
+                    progText.Content = "Download States";
+                    txtState.Content = "States";
+                    dLLists.Clear();
+                }
+
             }
             else if (p.State.ToString() == "Error")
             {
                 MessageBox.Show("失敗");
                 Debug.WriteLine(p.State.ToString());
-            }
-            if (count == list.Items.Count)
-            {
-                ShowNotif("All Done!", "おわったお");
-                list.ClearValue(ItemsControl.ItemsSourceProperty);
-                folder = "none";
-                count = 0;
-                progText.Content = "Download States";
-                txtState.Content = "States";
-                dLLists.Clear();
-
-
             }
         }
 
@@ -320,19 +320,22 @@ namespace yt_dlp_GUI_dotnet8
             var urls = addURl.urls;
             if (urls != null)
             {
-                foreach (var url in urls)
+                try
                 {
-
-                    if (IsValidUrl(url))
+                    foreach (var url in urls)
                     {
-                        dLLists.Add(new DLList { url = url });
+
+                        if (IsValidUrl(url))
+                        {
+                            dLLists.Add(new DLList { url = url });
+                        }
                     }
+                    list.ItemsSource = dLLists;
                 }
-                list.ItemsSource = dLLists;
-            }
-            else
-            {
-                MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                catch(Exception ex) 
+                {
+                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                }   
             }
 
         }
@@ -441,14 +444,33 @@ namespace yt_dlp_GUI_dotnet8
 
         private void cancel_Click(object sender, RoutedEventArgs e)
         {
-            cts.Cancel();
-            dLLists.Clear();
-            ShowNotif("Cancel", "キャンセルされたお");
-            list.ClearValue(ItemsControl.ItemsSourceProperty);
-            folder = "none";
-            count = 0;
-            progText.Content = "Download States";
-            txtState.Content = "States";
+            if (cts != null)
+            {
+                cts.Cancel();
+                dLLists.Clear();
+                ShowNotif("Cancel", "キャンセルされたお");
+                list.ClearValue(ItemsControl.ItemsSourceProperty);
+                folder = "none";
+                count = 0;
+                progText.Content = "Download States";
+                txtState.Content = "States";
+            }
+        }
+
+        private void codec_Audio_DropDownClosed(object sender, EventArgs e)
+        {
+            string sel = ((ComboBox)sender).Text;
+            Debug.WriteLine(sel);
+        }
+
+        private void Codec_Audio_Toggle_Checked(object sender, RoutedEventArgs e)
+        {
+            codec_Audio.IsEnabled = true;
+        }
+
+        private void Codec_Audio_Toggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            codec_Audio.IsEnabled = false;
         }
     }
 }
