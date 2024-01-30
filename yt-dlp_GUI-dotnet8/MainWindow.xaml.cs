@@ -142,7 +142,25 @@ namespace yt_dlp_GUI_dotnet8
                 run.Wait();
             }
         }
-
+        private bool isRunning = false;
+        private async Task Notouch()
+        {
+            this.IsEnabled = false;
+            await Task.Run(() =>
+            {
+                while(true)
+                {
+                    if(isRunning)
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            this.IsEnabled = true;
+                        }));
+                            break;
+                    }
+                }
+            });
+        }
         private async void QuestionDownloadFirst()
         {
             if (!File.Exists(@".\yt-dlp.exe") || !File.Exists(@".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"))
@@ -166,7 +184,9 @@ namespace yt_dlp_GUI_dotnet8
                     {
                         //ここでyt-dlpとffmpegダウンロードする
                         FileDownloader fld = new FileDownloader();
-
+                        DownloadNow dln = new DownloadNow();
+                        Notouch();
+                        dln.Show();
                         var ytdlp = await fld.GetContent("https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe");
                         using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
                         {
@@ -179,6 +199,8 @@ namespace yt_dlp_GUI_dotnet8
                         var ffmpeg = await fld.GetContent("https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip");
                         ZipFile.ExtractToDirectory(ffmpeg, @".\");
                         ffmpeg.Close();
+                        dln.Close();
+                        isRunning = true;
                         ShowNotif("Download Done!", "FFMPEGのダウンロードが終わりました");
 
                     }
@@ -199,15 +221,20 @@ namespace yt_dlp_GUI_dotnet8
             progText.Content = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             if (p.State.ToString() == "Success")
             {
+                saveVideosInfomation sv = new saveVideosInfomation();
                 if (dLLists.Count != count)
                 {
+                    sv.saveInfo(((DLList)list.Items[count - 1]).url);
                     count += 1;
                     Debug.WriteLine($"Count::{count - 1}");
                     var b = ((DLList)list.Items[count - 1]).url;
                     Debug.WriteLine(b);
                     DownloadAsync(b);
-                }else
+                }
+                else
                 {
+                    sv.saveInfo(((DLList)list.Items[count - 1]).url);
+                    listView_Recent.ItemsSource = saveVideosInfomation.ob;
                     ShowNotif("All Done!", "おわったお");
                     list.ClearValue(ItemsControl.ItemsSourceProperty);
                     folder = "none";
@@ -272,12 +299,6 @@ namespace yt_dlp_GUI_dotnet8
             webview.GoBack();
 
         }
-
-        private void paste_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void download_Click(object sender, RoutedEventArgs e)
         {
             //DownloadAsync();
@@ -332,10 +353,10 @@ namespace yt_dlp_GUI_dotnet8
                     }
                     list.ItemsSource = dLLists;
                 }
-                catch(Exception ex) 
+                catch (Exception ex)
                 {
                     MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
-                }   
+                }
             }
 
         }

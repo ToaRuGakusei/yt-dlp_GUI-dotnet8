@@ -6,8 +6,22 @@ namespace yt_dlp_GUI_dotnet8
 {
     public class FileDownloader
     {
+        public static double now = 0;
+        public static bool IsEnd = false;
+        public static string WhatName = "";
+        public static long TotalBytesRead = 0;
+        public static long TotalBytes = 0;
         public async Task<MemoryStream> GetContent(string Url)
         {
+            if(Url.Contains("yt-dlp.exe"))
+            {
+                WhatName = "yt-dlp";
+            }
+            else
+            {
+                WhatName = "ffmpeg";
+            }
+            IsEnd = false;
             return await Task.Run(async () =>
             {
                 using (HttpClient client = new HttpClient())
@@ -33,10 +47,13 @@ namespace yt_dlp_GUI_dotnet8
                                 if (totalBytes.HasValue)
                                 {
                                     double percentage = (double)totalBytesRead / totalBytes.Value * 100;
+                                    now = percentage;
+                                    TotalBytes = (long)totalBytes;
+                                    TotalBytesRead = totalBytesRead;
                                     Debug.WriteLine($"Downloaded {totalBytesRead} of {totalBytes} bytes. {percentage:F2}% complete...");
                                 }
                             }
-
+                            IsEnd = true;
                             return ms;
                         }
                     }
