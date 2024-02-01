@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -342,9 +343,12 @@ namespace yt_dlp_GUI_dotnet8
             //DownloadAsync();
         }
         ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
-        private void download_Click_1(object sender, RoutedEventArgs e)
+        private async void download_Click_1(object sender, RoutedEventArgs e)
         {
-            dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = "none" });
+            GetInfomation getInfomation = new GetInfomation();
+            var result = await getInfomation.Infomation(webview.CoreWebView2.Source);
+            string Title = result.Title;
+            dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title });
             list.ItemsSource = dLLists;
         }
 
@@ -352,6 +356,7 @@ namespace yt_dlp_GUI_dotnet8
         {
             public string url { get; set; }
             public string name { get; set; }
+
 
         }
 
@@ -375,7 +380,7 @@ namespace yt_dlp_GUI_dotnet8
         {
             dLLists.Clear();
         }
-        private void Add_Url_List(object sender, RoutedEventArgs e)
+        private async void Add_Url_List(object sender, RoutedEventArgs e)
         {
             AddUrl addURl = new AddUrl();
             addURl.ShowDialog();
@@ -384,12 +389,15 @@ namespace yt_dlp_GUI_dotnet8
             {
                 try
                 {
+                    GetInfomation getInfomation = new GetInfomation();
                     foreach (var url in urls)
                     {
 
                         if (IsValidUrl(url))
                         {
-                            dLLists.Add(new DLList { url = url });
+                            var result = await getInfomation.Infomation(url);
+                            string Title = result.Title;
+                            dLLists.Add(new DLList { url = url, name = Title});
                         }
                     }
                     list.ItemsSource = dLLists;
