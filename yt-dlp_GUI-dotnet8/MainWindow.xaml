@@ -275,7 +275,7 @@
                         Text="Infomation" />
                 </StackPanel>
             </TabItem.Header>
-            <ScrollViewer>
+            <ScrollViewer Width="Auto" Height="Auto">
                 <StackPanel
                     Name="StackPanel_Info"
                     Width="Auto"
@@ -487,9 +487,6 @@
                         <ComboBoxItem Content="H265" />
                         <ComboBoxItem Content="VP9" />
                         <ComboBoxItem Content="AV1" />
-                        <ComboBoxItem Content="MP3" />
-                        <ComboBoxItem Content="AAC" />
-                        <ComboBoxItem Content="FLAC" />
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">

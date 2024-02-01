@@ -26,7 +26,48 @@ namespace yt_dlp_GUI_dotnet8
             InitializeComponent();
             InitializeAsync();
             QuestionDownloadFirst();
+            Settings_Apply();
             progress = new Progress<DownloadProgress>((p) => showProgress(p));
+
+        }
+        private bool UseSettingsFile = false;
+        private bool Cookies_Enabled = false;
+        private bool SetPixel_Enabled = false;
+        private bool Codec_Enabled = false;
+        private bool Codec_Audio_Enabled = false;
+
+
+        private int Cookie = 0;
+        private int Pixel = 0;
+        private int Codec = 0;
+        private int Codec_Audio = 0;
+
+        private void Settings_Apply()
+        {
+            //ファイルが使用されているのを明示する
+            UseSettingsFile = true;
+
+            //設定ロード＾＾
+            SettingsLoader settingsLoader = new SettingsLoader();
+            Cookies_Enabled = settingsLoader.SettingEnabled_Check("Cookies_Enabled") == "true" ? true : false;
+            SetPixel_Enabled = settingsLoader.SettingEnabled_Check("resolution_Enabled") == "true" ? true : false;
+            Codec_Enabled = settingsLoader.SettingEnabled_Check("codec_Enabled") == "true" ? true : false;
+            Codec_Audio_Enabled = settingsLoader.SettingEnabled_Check("codec_Audio_Enabled") == "true" ? true : false;
+            Cookie = int.Parse(settingsLoader.SettingGetter("Cookies"));
+            Pixel = int.Parse(settingsLoader.SettingGetter("resolution"));
+            Codec = int.Parse(settingsLoader.SettingGetter("codec"));
+            Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
+
+            //設定反映(´・ω・`)
+            cookie.IsChecked = Cookies_Enabled;
+            SetPixel.IsChecked = SetPixel_Enabled;
+            CodecToggle.IsChecked = Codec_Enabled;
+            Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
+            //以下同文＾＾；
+            combo.SelectedIndex = Pixel == 114514 ? -1 : Pixel;
+            codec.SelectedIndex = Codec == 114514 ? -1 : Codec;
+            codec_Audio.SelectedIndex = Codec_Audio == 114514 ? -1 : Codec_Audio;
+            UseSettingsFile = false;
 
         }
         /// <summary>
@@ -118,11 +159,8 @@ namespace yt_dlp_GUI_dotnet8
                 EmbedInfoJson = true,
                 EmbedSubs = true,
                 EmbedMetadata = true,
-                EmbedThumbnail = true/*,
-                Cookies = cookieBrowser*/
-
+                EmbedThumbnail = true
             };
-            //--format bestvideo+251/bestvideo+bestaudio/best --embed-subs --embed-thumbnail --all-subs --merge-output-format {mp4_mkv} --all-subs --embed-subs --embed-thumbnail --xattrs --add-metadata -i -ciw -o \"{saveFolder}\\%(title)s\" {_u} 19
             run = Task.Run(() =>
             {
                 cts = new CancellationTokenSource();
@@ -321,12 +359,15 @@ namespace yt_dlp_GUI_dotnet8
         {
             PasswordBox.IsEnabled = true;
             Cookies.IsEnabled = true;
+            WriteSettings("Cookies_Enabled", "true");
         }
 
         private void cookie_Unchecked(object sender, RoutedEventArgs e)
         {
             PasswordBox.IsEnabled = false;
             Cookies.IsEnabled = false;
+            WriteSettings("Cookies_Enabled", "false");
+
 
         }
 
@@ -386,6 +427,7 @@ namespace yt_dlp_GUI_dotnet8
                     folder = "none";
 
                 }
+                Settings_Apply();
                 var a = ((DLList)list.Items[0]).url;
                 Debug.WriteLine(a);
                 DownloadAsync(a);
@@ -395,11 +437,15 @@ namespace yt_dlp_GUI_dotnet8
         private void SetPixel_Checked(object sender, RoutedEventArgs e)
         {
             combo.IsEnabled = true;
+            WriteSettings("resolution_Enabled", "true");
+
+
         }
 
         private void SetPixel_Unchecked(object sender, RoutedEventArgs e)
         {
             combo.IsEnabled = false;
+            WriteSettings("resolution_Enabled", "false");
         }
 
         private void Search_Clicked(object sender, RoutedEventArgs e)
@@ -433,33 +479,32 @@ namespace yt_dlp_GUI_dotnet8
         private void CodecToggle_Checked(object sender, RoutedEventArgs e)
         {
             codec.IsEnabled = true;
+            WriteSettings("codec_Enabled", "true");
         }
 
         private void CodecToggle_Unchecked(object sender, RoutedEventArgs e)
         {
             codec.IsEnabled = false;
+            WriteSettings("codec_Enabled", "false");
         }
 
         private void Cookies_Clicked_Click(object sender, RoutedEventArgs e)
         {
             if (PasswordBox.Password != "")
             {
-                using (StreamWriter sw = new StreamWriter(@".\Cookies.txt", false))
-                {
-                    sw.WriteLine(PasswordBox.Password);
-                }
+                WriteSettings("Cookies", PasswordBox.Password);
             }
         }
 
         private void combo_DropDownClosed(object sender, EventArgs e)
         {
-            string sel = ((ComboBox)sender).Text;
-            Debug.WriteLine(sel);
+            WriteSettings("resolution", Convert.ToString(combo.SelectedIndex));
         }
 
         private void codec_DropDownClosed(object sender, EventArgs e)
         {
             string sel = ((ComboBox)sender).Text;
+            WriteSettings("codec", Convert.ToString(codec.SelectedIndex));
             Debug.WriteLine(sel);
         }
 
@@ -480,18 +525,38 @@ namespace yt_dlp_GUI_dotnet8
 
         private void codec_Audio_DropDownClosed(object sender, EventArgs e)
         {
-            string sel = ((ComboBox)sender).Text;
-            Debug.WriteLine(sel);
+            WriteSettings("codec_Audio", Convert.ToString(codec_Audio.SelectedIndex));
         }
+        private void WriteSettings(string Title,string value)
+        {
+            if(!UseSettingsFile)
+            {
+                Directory.CreateDirectory(@".\Settings");
+                using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
+                {
+                    sw.WriteLine(value);
+                }
+            }
 
+        }
+        private void ReadSettings(string Title, string value)
+        {
+            Directory.CreateDirectory(@".\Settings");
+            using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
+            {
+                sw.WriteLine(value);
+            }
+        }
         private void Codec_Audio_Toggle_Checked(object sender, RoutedEventArgs e)
         {
             codec_Audio.IsEnabled = true;
+            WriteSettings("codec_Audio_Enabled", "true");
         }
 
         private void Codec_Audio_Toggle_Unchecked(object sender, RoutedEventArgs e)
         {
             codec_Audio.IsEnabled = false;
+            WriteSettings("codec_Audio_Enabled", "false");
         }
     }
 }
