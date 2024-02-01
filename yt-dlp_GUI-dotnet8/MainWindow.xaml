@@ -278,9 +278,7 @@
             </TabItem.Header>
             <ScrollViewer Width="Auto" Height="Auto">
                 <StackPanel
-                    Name="StackPanel_Info"
-                    Width="Auto"
-                    Height="Auto">
+                    Name="StackPanel_Info">
                     <materialDesign:ColorZone
                         Width="336"
                         Height="46"

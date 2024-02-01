@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -42,7 +41,8 @@ namespace yt_dlp_GUI_dotnet8
         private int Pixel = 0;
         private int Codec = 0;
         private int Codec_Audio = 0;
-
+        private AudioConversionFormat AudioConversion;
+        private DownloadMergeFormat DownloadMerge;
         private void Settings_Apply()
         {
             //ファイルが使用されているのを明示する
@@ -64,6 +64,40 @@ namespace yt_dlp_GUI_dotnet8
             SetPixel.IsChecked = SetPixel_Enabled;
             CodecToggle.IsChecked = Codec_Enabled;
             Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
+            //以下同文^^
+
+            switch (Codec_Audio)
+            {
+                case 0:
+                    AudioConversion = AudioConversionFormat.Mp3;
+                    break;
+                case 1:
+                    AudioConversion = AudioConversionFormat.Aac;
+                    break;
+                case 2:
+                    AudioConversion = AudioConversionFormat.Flac;
+                    break;
+            }
+            switch (Codec)
+            {
+                case 0:
+                    videoFormat = "h264";
+                    break;
+                case 1:
+                    videoFormat = "h265";
+                    break;
+                case 2:
+                    videoFormat="vp9";
+                    break;
+                case 3:
+                    videoFormat = "av1";
+                    break;
+            }
+
+
+
+
+
             //以下同文＾＾；
             combo.SelectedIndex = Pixel == 114514 ? -1 : Pixel;
             codec.SelectedIndex = Codec == 114514 ? -1 : Codec;
@@ -170,11 +204,6 @@ namespace yt_dlp_GUI_dotnet8
                     ytdl.RunVideoDownload(url, progress: progress, ct: cts.Token, overrideOptions: options);
 
                 }));
-                /*foreach( var format in formats )
-                {
-                    Debug.WriteLine(format);
-                }*/
-
             });
             if (run.Status == TaskStatus.Running)
             {
@@ -187,15 +216,15 @@ namespace yt_dlp_GUI_dotnet8
             this.IsEnabled = false;
             await Task.Run(() =>
             {
-                while(true)
+                while (true)
                 {
-                    if(isRunning)
+                    if (isRunning)
                     {
                         this.Dispatcher.Invoke((Action)(() =>
                         {
                             this.IsEnabled = true;
                         }));
-                            break;
+                        break;
                     }
                 }
             });
@@ -397,7 +426,7 @@ namespace yt_dlp_GUI_dotnet8
                         {
                             var result = await getInfomation.Infomation(url);
                             string Title = result.Title;
-                            dLLists.Add(new DLList { url = url, name = Title});
+                            dLLists.Add(new DLList { url = url, name = Title });
                         }
                     }
                     list.ItemsSource = dLLists;
@@ -535,9 +564,9 @@ namespace yt_dlp_GUI_dotnet8
         {
             WriteSettings("codec_Audio", Convert.ToString(codec_Audio.SelectedIndex));
         }
-        private void WriteSettings(string Title,string value)
+        private void WriteSettings(string Title, string value)
         {
-            if(!UseSettingsFile)
+            if (!UseSettingsFile)
             {
                 Directory.CreateDirectory(@".\Settings");
                 using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
