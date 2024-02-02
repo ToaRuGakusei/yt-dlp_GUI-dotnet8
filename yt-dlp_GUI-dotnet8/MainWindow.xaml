@@ -269,6 +269,7 @@
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer>
+                <Grid>
                 <StackPanel
                     Name="StackPanel_Info"
                     Width="Auto"
@@ -351,17 +352,17 @@
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                             Text="むふー" />
                     </GroupBox>
-                    <GroupBox Margin="16" Header="なにか">
-                        <TextBox
+                        <GroupBox Margin="16" Header="なにか">
+                            <TextBox
                             Name="nanika"
                             MaxHeight="300"
                             ScrollViewer.CanContentScroll="True"
                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                             Text="None" />
-                    </GroupBox>
-
-                </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
         </TabItem>
         <TabItem>
