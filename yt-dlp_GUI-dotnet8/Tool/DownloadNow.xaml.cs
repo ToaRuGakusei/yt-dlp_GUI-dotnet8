@@ -1,5 +1,6 @@
-﻿using System.Windows;
-
+﻿using MaterialDesignThemes.Wpf;
+using System.Windows;
+using yt_dlp_GUI_dotnet8.Tool;
 namespace yt_dlp_GUI_dotnet8
 {
     /// <summary>
@@ -12,7 +13,15 @@ namespace yt_dlp_GUI_dotnet8
             InitializeComponent();
             Bar.Maximum = 100;
             Bar.Minimum = 0;
+            PaletteHelper palette = new PaletteHelper();
+
+            ITheme theme = palette.GetTheme();
+
+            theme.SetBaseTheme(Theme.Dark);
+            palette.SetTheme(theme);
         }
+
+
         private async Task LoopTask() => await Task.Run(() =>
                                             {
                                                 bool end = false;
@@ -21,6 +30,7 @@ namespace yt_dlp_GUI_dotnet8
                                                 {
                                                     this.Dispatcher.Invoke((Action)(() =>
                                                     {
+                                                        Title = FileDownloader.WhatName + "ダウンロード中";
                                                         downloadRead.Content = FileDownloader.WhatName + "ダウンロード中";
                                                         downloadBytes.Content = (FileDownloader.TotalBytes) + "b";
                                                     }));

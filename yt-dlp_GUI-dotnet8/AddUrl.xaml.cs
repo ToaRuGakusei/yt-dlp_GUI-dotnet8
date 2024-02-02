@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,6 +24,12 @@ namespace yt_dlp_GUI_dotnet8
         public AddUrl()
         {
             InitializeComponent();
+            PaletteHelper palette = new PaletteHelper();
+
+            ITheme theme = palette.GetTheme();
+
+            theme.SetBaseTheme(Theme.Dark);
+            palette.SetTheme(theme);
         }
         public string[] urls;
         private void Add_Click(object sender, RoutedEventArgs e)

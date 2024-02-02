@@ -11,18 +11,20 @@
     Height="200"
     MaxWidth="450"
     MaxHeight="200"
-    Background="Black"
+    Background="DimGray"
     Loaded="Window_Loaded"
+    Topmost="True"
     Unloaded="Window_Unloaded"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
         <Label
             Name="downloadLabel"
-            Width="53"
+            Width="62"
             Height="32"
-            Margin="0,0,344,122"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
+            Margin="45,30,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
             Content="0%"
             FontSize="20" />
         <Label
@@ -48,6 +50,7 @@
             x:Name="Bar"
             Width="360"
             Height="50"
-            Margin="45,67,45,67" />
+            Margin="45,67,45,67"
+            Foreground="GreenYellow" />
     </Grid>
 </Window>

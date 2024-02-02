@@ -7,11 +7,12 @@
     xmlns:local="clr-namespace:yt_dlp_GUI_dotnet8"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="yt-dlp_GUI"
+    Title="AllVideoDownloader(仮）"
     Width="582"
     MinWidth="1024"
     MinHeight="765"
     Background="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"
+    Closing="Window_Closing"
     mc:Ignorable="d">
     <TabControl
         materialDesign:ColorZoneAssist.Mode="Standard"
@@ -66,7 +67,7 @@
                     Name="cl"
                     Width="127"
                     Height="32"
-                    Margin="10,0,0,19"
+                    Margin="16,0,0,19"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Click="cancel_Click"
@@ -102,19 +103,10 @@
                     Content="Let's Go" />
                 <Label
                     Name="progText"
-                    Margin="278,12,0,0"
+                    Margin="10,10,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Content="Download States"
-                    FontSize="30" />
-                <Label
-                    Name="txtState"
-                    Width="222"
-                    Height="46"
-                    Margin="10,12,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Content="States"
                     FontSize="30" />
             </Grid>
         </TabItem>
@@ -135,7 +127,7 @@
             <Grid Width="Auto" Height="Auto">
                 <ListView
                     x:Name="listView_Recent"
-                    Margin="10,45,10,10"
+                    Margin="10,165,10,10"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -168,8 +160,8 @@
                 </ListView>
                 <Button
                     Width="106"
-                    Height="32"
-                    Margin="26,8,0,0"
+                    Height="74"
+                    Margin="10,86,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="Button_Click_1"
@@ -276,9 +268,11 @@
                         Text="Infomation" />
                 </StackPanel>
             </TabItem.Header>
-            <ScrollViewer Width="Auto" Height="Auto">
+            <ScrollViewer>
                 <StackPanel
-                    Name="StackPanel_Info">
+                    Name="StackPanel_Info"
+                    Width="Auto"
+                    Height="Auto">
                     <materialDesign:ColorZone
                         Width="336"
                         Height="46"

@@ -2,7 +2,7 @@
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 
-namespace yt_dlp_GUI_dotnet8
+namespace yt_dlp_GUI_dotnet8.Tool
 {
     public class GetInfomation
     {
@@ -31,6 +31,7 @@ namespace yt_dlp_GUI_dotnet8
                 return videoData;
 
             });
+#pragma warning restore CS8603 // Null 参照戻り値である可能性があります。
 #pragma warning restore CS8603 // Null 参照戻り値である可能性があります。
         }
     }
