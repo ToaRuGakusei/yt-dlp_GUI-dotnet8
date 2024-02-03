@@ -30,10 +30,14 @@ namespace yt_dlp_GUI_dotnet8
         private bool SetPixel_Enabled = false;
         private bool Codec_Enabled = false;
         private bool Codec_Audio_Enabled = false;
-        private int Cookie = 0;
+        private bool container_Enabled = false;
+        private string Cookie = "";
         private int Pixel = 0;
         private int Codec = 0;
         private int Codec_Audio = 0;
+        private int Video = 0;
+        private int video_Value = 0;
+        private int Merge = 0;
 
         //初期化（ダウンロード関連）
         private CancellationTokenSource cts;
@@ -47,9 +51,25 @@ namespace yt_dlp_GUI_dotnet8
         private string yt_dlp_Download_URL = "https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe";
         private string ffmpeg_Download_URL = "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip";
         private AudioConversionFormat AudioConversion;
-        private DownloadMergeFormat DownloadMerge;
         private string Cookies_Path = @".\Cookies.txt";
-        private string[] Codec_List = { "h264", "h265","vp9","av1" };
+        private string[] Codec_List = { "h264", "h265", "vp9", "av1" };
+
+        //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
+        private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
+
+        private ObservableCollection<DownloadMergeFormat> mergeList = new ObservableCollection<DownloadMergeFormat>
+        {DownloadMergeFormat.Mp4,
+         DownloadMergeFormat.Mkv,
+         DownloadMergeFormat.Flv };
+
+        private ObservableCollection<AudioConversionFormat> AudioList = new ObservableCollection<AudioConversionFormat>
+        {
+          AudioConversionFormat.Mp3,
+          AudioConversionFormat.Aac,
+          AudioConversionFormat.Flac};
+
+
+        private DownloadMergeFormat mergeOutputFormat;
 
         private readonly string title = "AllVideoDownloader(仮)";
         public class DLList()
@@ -99,35 +119,40 @@ namespace yt_dlp_GUI_dotnet8
             SetPixel_Enabled = settingsLoader.SettingEnabled_Check("resolution_Enabled") == "true" ? true : false;
             Codec_Enabled = settingsLoader.SettingEnabled_Check("codec_Enabled") == "true" ? true : false;
             Codec_Audio_Enabled = settingsLoader.SettingEnabled_Check("codec_Audio_Enabled") == "true" ? true : false;
-            Cookie = int.Parse(settingsLoader.SettingGetter("Cookies"));
+            container_Enabled = settingsLoader.SettingEnabled_Check("container_Enabled") == "true" ? true : false;
+            //Cookie = settingsLoader.SettingGetter("Cookies");
             Pixel = int.Parse(settingsLoader.SettingGetter("resolution"));
             Codec = int.Parse(settingsLoader.SettingGetter("codec"));
             Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
+            Video = int.Parse(settingsLoader.SettingGetter("resolution"));
+            Merge = int.Parse(settingsLoader.SettingGetter("container"));
 
             //設定反映(´・ω・`)
             cookie.IsChecked = Cookies_Enabled;
             SetPixel.IsChecked = SetPixel_Enabled;
             CodecToggle.IsChecked = Codec_Enabled;
             Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
+            container_Toggle.IsChecked = container_Enabled;
+            if(Codec_Audio != -9)
+                AudioConversion = AudioList[Codec_Audio];
 
-            switch (Codec_Audio)
+            if (Codec != -9)
+                videoFormat = Codec_List[Codec];
+
+            if (Video != -9)
+                video_Value = video[Video];
+
+            if (Merge != -9)
             {
-                case 0:
-                    AudioConversion = AudioConversionFormat.Mp3;
-                    break;
-                case 1:
-                    AudioConversion = AudioConversionFormat.Aac;
-                    break;
-                case 2:
-                    AudioConversion = AudioConversionFormat.Flac;
-                    break;
+                mergeOutputFormat = mergeList[Merge];
             }
-            videoFormat = Codec_List[Codec];
+
 
             //-9は取得できなかったということで、何も表示させないために-1を代入させる。それ以外の場合はそのまま代入。
             combo.SelectedIndex = Pixel == -9 ? -1 : Pixel;
             codec.SelectedIndex = Codec == -9 ? -1 : Codec;
             codec_Audio.SelectedIndex = Codec_Audio == -9 ? -1 : Codec_Audio;
+            container.SelectedIndex = Merge == -9 ? -1 : Merge;
 
             //設定ファイルへのアクセスを解放
             UseSettingsFile = false;
@@ -189,20 +214,15 @@ namespace yt_dlp_GUI_dotnet8
         {
             var options = new OptionSet()
             {
-                Format = $"bestvideo+251/bestvideo+bestaudio/best",
+                Format = $"{video_Value}+251/bestvideo+bestaudio/best",
                 FormatSort = $"vcodec:{videoFormat}",
                 AudioFormat = AudioConversion,
-                WriteThumbnail = true,
-                WriteSubs = true,
-                WriteAutoSubs = true,
-                WriteInfoJson = true,
-                WriteWeblocLink = true,
-                MergeOutputFormat = DownloadMergeFormat.Mp4,
-                EmbedChapters = true,
-                EmbedInfoJson = true,
-                EmbedSubs = true,
+                MergeOutputFormat = mergeOutputFormat,
+                Cookies = @"C:\Users\r23ry\Downloads\www.youtube.com_cookies.txt",
                 EmbedMetadata = true,
-                EmbedThumbnail = true
+                EmbedThumbnail = true,
+                IgnoreErrors = true,
+                Retries = 5
             };
             run = Task.Run(() =>
             {
@@ -521,7 +541,8 @@ namespace yt_dlp_GUI_dotnet8
                     VidInfo.Text = video.ToString();
                     load.Close();
                     isEnd = true;
-                }catch(Exception)
+                }
+                catch (Exception)
                 {
                     MessageBox.Show("対応していないサイトかエラーが発生しました。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
                     load.Close();
@@ -643,6 +664,20 @@ namespace yt_dlp_GUI_dotnet8
         {
             codec_Audio.IsEnabled = false;
             WriteSettings("codec_Audio_Enabled", "false");
+        }
+        private void container_Toggle_Checked(object sender, RoutedEventArgs e)
+        {
+            container.IsEnabled = true;
+            WriteSettings("container_Enabled", "true");
+        }
+        private void container_Toggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            container.IsEnabled = false;
+            WriteSettings("container_Enabled", "false");
+        }
+        private void container_DropDownClosed(object sender, EventArgs e)
+        {
+            WriteSettings("container", Convert.ToString(container.SelectedIndex));
         }
 
     }

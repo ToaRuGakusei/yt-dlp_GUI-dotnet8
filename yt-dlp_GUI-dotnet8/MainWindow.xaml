@@ -90,7 +90,7 @@
                     VerticalAlignment="Bottom"
                     IsEnabled="True"
                     Maximum="1"
-                    Minimum="0.01"/>
+                    Minimum="0.01" />
                 <Button
                     x:Name="Go"
                     Width="128"
@@ -268,96 +268,96 @@
             </TabItem.Header>
             <ScrollViewer>
                 <Grid>
-                <StackPanel
-                    Name="StackPanel_Info"
-                    Width="Auto"
-                    Height="Auto">
-                    <materialDesign:ColorZone
-                        Width="336"
-                        Height="46"
-                        Mode="Light">
-                        <Grid
-                            Name="searchFore"
+                    <StackPanel
+                        Name="StackPanel_Info"
+                        Width="Auto"
+                        Height="Auto">
+                        <materialDesign:ColorZone
                             Width="336"
-                            Margin="0,10,0,10"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox
-                                x:Name="SearchBox_Info"
-                                Grid.Column="1"
-                                MinWidth="200"
-                                Margin="8,0,33,0"
-                                VerticalAlignment="Center"
-                                materialDesign:HintAssist.Hint="URLを入力してください"
-                                materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
-                                BorderThickness="0" />
-                            <Button
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Margin="303,-3,0,0"
-                                Click="Info_Search"
-                                Style="{DynamicResource MaterialDesignToolButton}">
-                                <materialDesign:PackIcon
-                                    Width="23"
-                                    Height="22"
-                                    Kind="Search"
-                                    Opacity=".56" />
-                            </Button>
-                        </Grid>
-                    </materialDesign:ColorZone>
-                    <Grid Height="403" Background="Gray">
-                        <GroupBox
-                            Name="VideoTitle"
-                            Width="592"
-                            Margin="0,16,0,10"
-                            HorizontalAlignment="Center"
-                            Header="サムネイル"
-                            Style="{DynamicResource MaterialDesignCardGroupBox}">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon
-                                            Width="32"
-                                            Height="32"
-                                            VerticalAlignment="Center"
-                                            Kind="ImageArea" />
-                                        <TextBlock
-                                            Margin="8,0,0,0"
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                                            Text="{Binding}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-                            <Image
-                                Name="thumbPic"
+                            Height="46"
+                            Mode="Light">
+                            <Grid
+                                Name="searchFore"
+                                Width="336"
+                                Margin="0,10,0,10"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Source="muhu.jpg" />
+                                VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="SearchBox_Info"
+                                    Grid.Column="1"
+                                    MinWidth="200"
+                                    Margin="8,0,33,0"
+                                    VerticalAlignment="Center"
+                                    materialDesign:HintAssist.Hint="URLを入力してください"
+                                    materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+                                    BorderThickness="0" />
+                                <Button
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Margin="303,-3,0,0"
+                                    Click="Info_Search"
+                                    Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon
+                                        Width="23"
+                                        Height="22"
+                                        Kind="Search"
+                                        Opacity=".56" />
+                                </Button>
+                            </Grid>
+                        </materialDesign:ColorZone>
+                        <Grid Height="403" Background="Gray">
+                            <GroupBox
+                                Name="VideoTitle"
+                                Width="592"
+                                Margin="0,16,0,10"
+                                HorizontalAlignment="Center"
+                                Header="サムネイル"
+                                Style="{DynamicResource MaterialDesignCardGroupBox}">
+                                <GroupBox.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon
+                                                Width="32"
+                                                Height="32"
+                                                VerticalAlignment="Center"
+                                                Kind="ImageArea" />
+                                            <TextBlock
+                                                Margin="8,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                                Text="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GroupBox.HeaderTemplate>
+                                <Image
+                                    Name="thumbPic"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Source="muhu.jpg" />
+                            </GroupBox>
+                        </Grid>
+                        <GroupBox Margin="16" Header="Infomation">
+                            <TextBox
+                                Name="VidInfo"
+                                MaxHeight="300"
+                                ScrollViewer.CanContentScroll="True"
+                                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                Text="むふー" />
                         </GroupBox>
-                    </Grid>
-                    <GroupBox Margin="16" Header="Infomation">
-                        <TextBox
-                            Name="VidInfo"
-                            MaxHeight="300"
-                            ScrollViewer.CanContentScroll="True"
-                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            Text="むふー" />
-                    </GroupBox>
                         <GroupBox Margin="16" Header="なにか">
                             <TextBox
-                            Name="nanika"
-                            MaxHeight="300"
-                            ScrollViewer.CanContentScroll="True"
-                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            Text="None" />
+                                Name="nanika"
+                                MaxHeight="300"
+                                ScrollViewer.CanContentScroll="True"
+                                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                Text="None" />
                         </GroupBox>
                     </StackPanel>
                 </Grid>
@@ -507,6 +507,34 @@
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
                         <ComboBoxItem Content="FLAC" />
+                    </ComboBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label
+                        Width="151"
+                        Margin="34,16,0,12"
+                        HorizontalAlignment="Left"
+                        Content="指定した拡張子を強制する" />
+                    <ToggleButton
+                        x:Name="container_Toggle"
+                        Width="34"
+                        Margin="0,2,0,-2"
+                        HorizontalAlignment="Left"
+                        Checked="container_Toggle_Checked"
+                        IsChecked="False"
+                        RenderTransformOrigin="0.5,0.5"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        Unchecked="container_Toggle_Unchecked" />
+                    <ComboBox
+                        Name="container"
+                        Margin="190,14,297,10"
+                        materialDesign:HintAssist.Hint="拡張子"
+                        DropDownClosed="container_DropDownClosed"
+                        IsEnabled="False">
+                        <ComboBoxItem Content="MP4" />
+                        <ComboBoxItem Content="MKV" />
+                        <ComboBoxItem Content="FLV" />
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
