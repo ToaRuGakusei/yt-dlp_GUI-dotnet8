@@ -11,37 +11,46 @@ namespace yt_dlp_GUI_dotnet8
         public DownloadNow()
         {
             InitializeComponent();
+            ChangeTheme();
             Bar.Maximum = 100;
             Bar.Minimum = 0;
+        }
+        private static void ChangeTheme()
+        {
             PaletteHelper palette = new PaletteHelper();
-
             ITheme theme = palette.GetTheme();
-
             theme.SetBaseTheme(Theme.Dark);
             palette.SetTheme(theme);
         }
-
-
+        /// <summary>
+        /// プログレスバー関連
+        /// </summary>
+        /// <returns></returns>
         private async Task LoopTask() => await Task.Run(() =>
                                             {
                                                 bool end = false;
-                                                string name = "";
+                                                string name = String.Empty;
+                                                string DownloadNow = String.Empty;
                                                 while (true)
                                                 {
                                                     this.Dispatcher.Invoke((Action)(() =>
                                                     {
-                                                        Title = FileDownloader.WhatName + "ダウンロード中";
-                                                        downloadRead.Content = FileDownloader.WhatName + "ダウンロード中";
+                                                        DownloadNow = FileDownloader.WhatName + "をダウンロード中";
+                                                        Title = DownloadNow;
+                                                        downloadRead.Content = DownloadNow;
                                                         downloadBytes.Content = (FileDownloader.TotalBytes) + "b";
                                                     }));
                                                     this.Dispatcher.Invoke((Action)(() =>
                                                     {
                                                         Bar.Value = FileDownloader.now;
                                                         downloadLabel.Content = $"{Bar.Value:F0}%";
+                                                    }));
+                                                    this.Dispatcher.Invoke((Action)(() =>
+                                                    {
                                                         name = FileDownloader.WhatName;
                                                         end = FileDownloader.IsEnd;
                                                     }));
-                                                    if (name == "ffmpeg" && end == true)
+                                                    if (name.Contains("ffmpeg") && end == true)
                                                     {
                                                         break;
                                                     }

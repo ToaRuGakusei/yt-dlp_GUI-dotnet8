@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,16 @@ namespace yt_dlp_GUI_dotnet8.Tool
         public Loading()
         {
             InitializeComponent();
+            ChangeTheme();
             Bar.IsIndeterminate = true;
+        }
+
+        private static void ChangeTheme()
+        {
+            PaletteHelper palette = new PaletteHelper();
+            ITheme theme = palette.GetTheme();
+            theme.SetBaseTheme(Theme.Dark);
+            palette.SetTheme(theme);
         }
     }
 }

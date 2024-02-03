@@ -13,14 +13,6 @@ namespace yt_dlp_GUI_dotnet8.Tool
         public static long TotalBytes = 0;
         public async Task<MemoryStream> GetContent(string Url)
         {
-            if (Url.Contains("yt-dlp.exe"))
-            {
-                WhatName = "yt-dlp";
-            }
-            else if (Url.Contains("ffmpeg"))
-            {
-                WhatName = "ffmpeg";
-            }
             IsEnd = false;
             return await Task.Run(async () =>
             {
@@ -28,6 +20,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 {
                     string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0";
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                    WhatName = Path.GetFileName(Url);
                     using (HttpResponseMessage response = await client.GetAsync(new Uri(Url), HttpCompletionOption.ResponseHeadersRead))
                     {
                         response.EnsureSuccessStatusCode();
