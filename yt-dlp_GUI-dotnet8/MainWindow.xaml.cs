@@ -42,7 +42,14 @@ namespace yt_dlp_GUI_dotnet8
         private int Codec = 0;
         private int Codec_Audio = 0;
         private AudioConversionFormat AudioConversion;
+        private ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
         private DownloadMergeFormat DownloadMerge;
+        private string yt_dlp_Path = @".\yt-dlp.exe";
+        private string ffmpeg_Path = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
+        public string folder = "none";
+        public CancellationTokenSource cts;
+        public bool cancel = false;
+        public Task run;
         private void Settings_Apply()
         {
             //ファイルが使用されているのを明示する
@@ -78,6 +85,7 @@ namespace yt_dlp_GUI_dotnet8
                     AudioConversion = AudioConversionFormat.Flac;
                     break;
             }
+
             switch (Codec)
             {
                 case 0:
@@ -87,16 +95,12 @@ namespace yt_dlp_GUI_dotnet8
                     videoFormat = "h265";
                     break;
                 case 2:
-                    videoFormat="vp9";
+                    videoFormat = "vp9";
                     break;
                 case 3:
                     videoFormat = "av1";
                     break;
             }
-
-
-
-
 
             //以下同文＾＾；
             combo.SelectedIndex = Pixel == 114514 ? -1 : Pixel;
@@ -111,6 +115,7 @@ namespace yt_dlp_GUI_dotnet8
         private async void InitializeAsync()
         {
             //初期化完了時のイベント
+
             webview.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
 
             await webview.EnsureCoreWebView2Async(null);
@@ -142,9 +147,7 @@ namespace yt_dlp_GUI_dotnet8
                         .Show();
         }
 
-        public string folder = "none";
-        public bool cancel = false;
-        public Task run;
+        
         private void DownloadAsync(string url)
         {
             var ytdl = new YoutubeDL();
@@ -176,7 +179,6 @@ namespace yt_dlp_GUI_dotnet8
             }
 
         }
-        public CancellationTokenSource cts;
         private void DownloadVideo(string url, YoutubeDL ytdl, DownloadMergeFormat format)
         {
             var options = new OptionSet()
@@ -229,9 +231,10 @@ namespace yt_dlp_GUI_dotnet8
                 }
             });
         }
+       
         private async void QuestionDownloadFirst()
         {
-            if (!File.Exists(@".\yt-dlp.exe") || !File.Exists(@".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"))
+            if (!File.Exists(yt_dlp_Path) || !File.Exists(ffmpeg_Path))
             {
                 var result = MessageBox.Show("yt-dlpまたはffmpegが見つかりませんでした。\nダウンロードしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Cancel)
@@ -339,11 +342,6 @@ namespace yt_dlp_GUI_dotnet8
             webview.CoreWebView2.Navigate("https://google.com");
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            //if()
-        }
-
         private void right_Click(object sender, RoutedEventArgs e)
         {
             webview.GoForward();
@@ -367,11 +365,6 @@ namespace yt_dlp_GUI_dotnet8
             webview.GoBack();
 
         }
-        private void download_Click(object sender, RoutedEventArgs e)
-        {
-            //DownloadAsync();
-        }
-        ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
         private async void download_Click_1(object sender, RoutedEventArgs e)
         {
             GetInfomation getInfomation = new GetInfomation();
@@ -414,30 +407,41 @@ namespace yt_dlp_GUI_dotnet8
             AddUrl addURl = new AddUrl();
             addURl.ShowDialog();
             var urls = addURl.urls;
-            if (urls != null)
+            try
             {
-                try
-                {
-                    GetInfomation getInfomation = new GetInfomation();
-                    foreach (var url in urls)
-                    {
-
-                        if (IsValidUrl(url))
-                        {
-                            var result = await getInfomation.Infomation(url);
-                            string Title = result.Title;
-                            dLLists.Add(new DLList { url = url, name = Title });
-                        }
-                    }
-                    list.ItemsSource = dLLists;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                await CheckUrl(urls);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
+
         }
+        /// <summary>
+        /// ここでUrlをチェック
+        /// </summary>
+        /// <param name="urls"></param>
+        /// <returns></returns>
+        private async Task CheckUrl(string[] urls)
+        {
+            if (urls != null)
+            {
+                GetInfomation getInfomation = new GetInfomation();
+                foreach (var url in urls)
+                {
+
+                    if (IsValidUrl(url))
+                    {
+                        var result = await getInfomation.Infomation(url);
+                        string Title = result.Title;
+                        dLLists.Add(new DLList { url = url, name = Title });
+                    }
+                }
+                list.ItemsSource = dLLists;
+            }
+        }
+
         public static bool IsValidUrl(string url)
         {
             return Uri.IsWellFormedUriString(url, UriKind.Absolute);
@@ -564,6 +568,9 @@ namespace yt_dlp_GUI_dotnet8
         {
             WriteSettings("codec_Audio", Convert.ToString(codec_Audio.SelectedIndex));
         }
+
+        //ここでSettings内の設定を書き込む
+        //というかxmlで書き込みたい。
         private void WriteSettings(string Title, string value)
         {
             if (!UseSettingsFile)
