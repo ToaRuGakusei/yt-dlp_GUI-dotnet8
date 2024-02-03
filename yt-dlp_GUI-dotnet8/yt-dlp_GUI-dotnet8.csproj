@@ -4,14 +4,19 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <RootNamespace>yt_dlp_GUI_dotnet8</RootNamespace>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>download.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Logo\done.png" />
     <None Remove="muhu.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="download.ico" />
   </ItemGroup>
 
   <ItemGroup>

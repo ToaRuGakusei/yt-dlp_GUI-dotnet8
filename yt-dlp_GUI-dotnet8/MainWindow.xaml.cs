@@ -49,6 +49,9 @@ namespace yt_dlp_GUI_dotnet8
         private AudioConversionFormat AudioConversion;
         private DownloadMergeFormat DownloadMerge;
         private string Cookies_Path = @".\Cookies.txt";
+        private string[] Codec_List = { "h264", "h265","vp9","av1" };
+
+        private readonly string title = "AllVideoDownloader(仮)";
         public class DLList()
         {
             public string url { get; set; }
@@ -119,26 +122,12 @@ namespace yt_dlp_GUI_dotnet8
                     AudioConversion = AudioConversionFormat.Flac;
                     break;
             }
-            switch (Codec)
-            {
-                case 0:
-                    videoFormat = "h264";
-                    break;
-                case 1:
-                    videoFormat = "h265";
-                    break;
-                case 2:
-                    videoFormat = "vp9";
-                    break;
-                case 3:
-                    videoFormat = "av1";
-                    break;
-            }
+            videoFormat = Codec_List[Codec];
 
             //-9は取得できなかったということで、何も表示させないために-1を代入させる。それ以外の場合はそのまま代入。
             combo.SelectedIndex = Pixel == -9 ? -1 : Pixel;
             codec.SelectedIndex = Codec == -9 ? -1 : Codec;
-            codec_Audio.SelectedIndex = -9 == 114514 ? -1 : Codec_Audio;
+            codec_Audio.SelectedIndex = Codec_Audio == -9 ? -1 : Codec_Audio;
 
             //設定ファイルへのアクセスを解放
             UseSettingsFile = false;
@@ -323,9 +312,9 @@ namespace yt_dlp_GUI_dotnet8
         private void showProgress(DownloadProgress p)
         {
             prog.Value = p.Progress;
-            Title = p.State.ToString();
             int a = (int)(p.Progress * 100);
-            progText.Content = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
+            Title = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
+            progText.Content = p.State;
             if (p.State.ToString() == "Success")
             {
                 saveVideosInfomation sv = new saveVideosInfomation();
@@ -361,6 +350,7 @@ namespace yt_dlp_GUI_dotnet8
             count = 1;
             progText.Content = "Download States";
             dLLists.Clear();
+            Title = title;
         }
 
         private void NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
@@ -376,7 +366,7 @@ namespace yt_dlp_GUI_dotnet8
             SearchBox.Text = webview.CoreWebView2.Source;
         }
 
-        private void WebView2_CoreWebView2InitializationCompleted(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
+        private void WebView2_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
         {
             Debug.WriteLine("初期化完了");
             webview.CoreWebView2.Navigate("https://google.com");
@@ -442,7 +432,7 @@ namespace yt_dlp_GUI_dotnet8
                 await UrlsCheck(urls);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -517,19 +507,27 @@ namespace yt_dlp_GUI_dotnet8
                 //初期化
                 Loading load = new Loading();
                 GetInfomation get = new GetInfomation();
+                try
+                {
+                    //ロード中を呼び出し
+                    Notouch();
+                    load.Show();
 
-                //ロード中を呼び出し
-                Notouch();
-                load.Show();
+                    //本処理
+                    var video = await get.Infomation(SearchBox_Info.Text);
+                    BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
+                    thumbPic.Source = bti;
+                    VideoTitle.Header = video.Title;
+                    VidInfo.Text = video.ToString();
+                    load.Close();
+                    isEnd = true;
+                }catch(Exception)
+                {
+                    MessageBox.Show("対応していないサイトかエラーが発生しました。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                    load.Close();
+                    isEnd = true;
+                }
 
-                //本処理
-                var video = await get.Infomation(SearchBox_Info.Text);
-                BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
-                thumbPic.Source = bti;
-                VideoTitle.Header = video.Title;
-                VidInfo.Text = video.ToString();
-                load.Close();
-                isEnd = true;
             }
             else
             {
@@ -580,12 +578,6 @@ namespace yt_dlp_GUI_dotnet8
         {
             webview.CoreWebView2.Navigate(SearchBox.Text);
         }
-
-        private void prog_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            Debug.WriteLine(prog.Value.ToString());
-        }
-
         private void CodecToggle_Checked(object sender, RoutedEventArgs e)
         {
             codec.IsEnabled = true;
@@ -615,7 +607,6 @@ namespace yt_dlp_GUI_dotnet8
         {
             string sel = ((ComboBox)sender).Text;
             WriteSettings("codec", Convert.ToString(codec.SelectedIndex));
-            Debug.WriteLine(sel);
         }
 
         private void codec_Audio_DropDownClosed(object sender, EventArgs e)

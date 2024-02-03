@@ -90,8 +90,7 @@
                     VerticalAlignment="Bottom"
                     IsEnabled="True"
                     Maximum="1"
-                    Minimum="0.01"
-                    ValueChanged="prog_ValueChanged" />
+                    Minimum="0.01"/>
                 <Button
                     x:Name="Go"
                     Width="128"
