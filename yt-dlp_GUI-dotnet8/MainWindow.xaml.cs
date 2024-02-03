@@ -120,7 +120,7 @@ namespace yt_dlp_GUI_dotnet8
             Codec_Enabled = settingsLoader.SettingEnabled_Check("codec_Enabled") == "true" ? true : false;
             Codec_Audio_Enabled = settingsLoader.SettingEnabled_Check("codec_Audio_Enabled") == "true" ? true : false;
             container_Enabled = settingsLoader.SettingEnabled_Check("container_Enabled") == "true" ? true : false;
-            //Cookie = settingsLoader.SettingGetter("Cookies");
+            Cookie = settingsLoader.SettingGetter("Cookies").Replace("\r\n","").Replace("\"","");
             Pixel = int.Parse(settingsLoader.SettingGetter("resolution"));
             Codec = int.Parse(settingsLoader.SettingGetter("codec"));
             Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
@@ -153,6 +153,7 @@ namespace yt_dlp_GUI_dotnet8
             codec.SelectedIndex = Codec == -9 ? -1 : Codec;
             codec_Audio.SelectedIndex = Codec_Audio == -9 ? -1 : Codec_Audio;
             container.SelectedIndex = Merge == -9 ? -1 : Merge;
+            PasswordBox.Text = Cookie;
 
             //設定ファイルへのアクセスを解放
             UseSettingsFile = false;
@@ -218,7 +219,7 @@ namespace yt_dlp_GUI_dotnet8
                 FormatSort = $"vcodec:{videoFormat}",
                 AudioFormat = AudioConversion,
                 MergeOutputFormat = mergeOutputFormat,
-                Cookies = @"C:\Users\r23ry\Downloads\www.youtube.com_cookies.txt",
+                Cookies = Cookie,
                 EmbedMetadata = true,
                 EmbedThumbnail = true,
                 IgnoreErrors = true,
@@ -535,10 +536,15 @@ namespace yt_dlp_GUI_dotnet8
 
                     //本処理
                     var video = await get.Infomation(SearchBox_Info.Text);
-                    BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
-                    thumbPic.Source = bti;
-                    VideoTitle.Header = video.Title;
-                    VidInfo.Text = video.ToString();
+                    if(video != null)
+                    {
+                        BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
+                        thumbPic.Source = bti;
+                        VideoTitle.Header = video.Title;
+                        VidInfo.Text = video.ToString();
+                        load.Close();
+                        isEnd = true;
+                    }
                     load.Close();
                     isEnd = true;
                 }
@@ -613,9 +619,9 @@ namespace yt_dlp_GUI_dotnet8
 
         private void Cookies_Clicked_Click(object sender, RoutedEventArgs e)
         {
-            if (PasswordBox.Password != "")
+            if (PasswordBox.Text != "")
             {
-                WriteSettings("Cookies", PasswordBox.Password);
+                WriteSettings("Cookies", PasswordBox.Text);
             }
         }
 

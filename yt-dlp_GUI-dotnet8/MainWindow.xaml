@@ -403,7 +403,7 @@
                         ToggleButton.Checked="cookie_Checked"
                         ToggleButton.Unchecked="cookie_Unchecked"
                         ToolTip="MaterialDesignSwitchLightToggleButton" />
-                    <PasswordBox
+                    <TextBox
                         x:Name="PasswordBox"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="Cookie"
