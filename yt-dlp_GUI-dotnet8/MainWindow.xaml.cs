@@ -22,7 +22,7 @@ namespace yt_dlp_GUI_dotnet8
     {
         private IProgress<DownloadProgress> progress;
         private string cookieBrowser;
-        private string videoFormat = "h265";
+        private string videoFormat;
         public MainWindow()
         {
             InitializeComponent();
@@ -44,20 +44,23 @@ namespace yt_dlp_GUI_dotnet8
         private bool Codec_Enabled = false;
         private bool Codec_Audio_Enabled = false;
 
-
         private int Cookie = 0;
         private int Pixel = 0;
         private int Codec = 0;
         private int Codec_Audio = 0;
         private AudioConversionFormat AudioConversion;
-        private ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
         private DownloadMergeFormat DownloadMerge;
-        private string yt_dlp_Path = @".\yt-dlp.exe";
-        private string ffmpeg_Path = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
-        public string folder = "none";
         public CancellationTokenSource cts;
+        public string folder = "none";
         public bool cancel = false;
         public Task run;
+        private bool isRunning = false;
+        private ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
+        private string yt_dlp_Path = @".\yt-dlp.exe";
+        private string ffmpeg_Path = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
+
+
+
         private void Settings_Apply()
         {
             //ファイルが使用されているのを明示する
@@ -93,7 +96,6 @@ namespace yt_dlp_GUI_dotnet8
                     AudioConversion = AudioConversionFormat.Flac;
                     break;
             }
-
             switch (Codec)
             {
                 case 0:
@@ -115,7 +117,6 @@ namespace yt_dlp_GUI_dotnet8
             codec.SelectedIndex = Codec == 114514 ? -1 : Codec;
             codec_Audio.SelectedIndex = Codec_Audio == 114514 ? -1 : Codec_Audio;
             UseSettingsFile = false;
-
         }
         /// <summary>
         /// ここでWebView関連の設定を行っている
@@ -123,14 +124,11 @@ namespace yt_dlp_GUI_dotnet8
         private async void InitializeAsync()
         {
             //初期化完了時のイベント
-
             webview.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
-
             await webview.EnsureCoreWebView2Async(null);
             //新しいタブで開かないようにする。
             webview.CoreWebView2.NewWindowRequested += NewWindowRequested;
             webview.CoreWebView2.SourceChanged += CompletedPage;
-            SizeChanged += MainWindow_SizeChanged;
             if (File.Exists(@".\Cookies.txt"))
             {
                 using (StreamReader sm = new StreamReader(@".\Cookies.txt"))
@@ -139,12 +137,6 @@ namespace yt_dlp_GUI_dotnet8
                 }
             }
         }
-
-        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            StackPanel_Info.MaxHeight = this.Height;
-        }
-
         public static void ShowNotif(string title, string body)
         {
             new ToastContentBuilder()
@@ -154,13 +146,12 @@ namespace yt_dlp_GUI_dotnet8
                         .SetToastScenario(ToastScenario.Default)
                         .Show();
         }
-
-        
+        //ここでオプションなどを設定し、DownloadVideoに値を渡す。
         private void DownloadAsync(string url)
         {
             var ytdl = new YoutubeDL();
-            ytdl.YoutubeDLPath = @".\yt-dlp.exe";
-            ytdl.FFmpegPath = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
+            ytdl.YoutubeDLPath = yt_dlp_Path;
+            ytdl.FFmpegPath = ffmpeg_Path;
             if (folder == "none")
             {
                 var dlg = new CommonOpenFileDialog();
@@ -169,25 +160,16 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     ytdl.OutputFolder = dlg.FileName;
                     folder = dlg.FileName;
-                    DownloadVideo(url, ytdl, DownloadMergeFormat.Mkv);
+                    DownloadVideo(url, ytdl);
                 }
                 else
                 {
                     cancel = true;
                     MessageBox.Show("キャンセルされました。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-
-
             }
-            else
-            {
-                ytdl.OutputFolder = folder;
-
-                DownloadVideo(url, ytdl, DownloadMergeFormat.Mkv);
-            }
-
         }
-        private void DownloadVideo(string url, YoutubeDL ytdl, DownloadMergeFormat format)
+        private void DownloadVideo(string url, YoutubeDL ytdl)
         {
             var options = new OptionSet()
             {
@@ -220,12 +202,15 @@ namespace yt_dlp_GUI_dotnet8
                 run.Wait();
             }
         }
-        private bool isRunning = false;
-        private async Task Notouch()
+
+        /// <summary>
+        /// MainWindowを無効化する
+        /// </summary>
+        private void Notouch()
         {
             this.IsEnabled = false;
             isRunning = false;
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 while (true)
                 {
@@ -240,10 +225,9 @@ namespace yt_dlp_GUI_dotnet8
                 }
             });
         }
-       
         private async void QuestionDownloadFirst()
         {
-            if (!File.Exists(yt_dlp_Path) || !File.Exists(ffmpeg_Path))
+            if (!File.Exists(@".\yt-dlp.exe") || !File.Exists(@".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"))
             {
                 var result = MessageBox.Show("yt-dlpまたはffmpegが見つかりませんでした。\nダウンロードしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Cancel)
@@ -260,38 +244,45 @@ namespace yt_dlp_GUI_dotnet8
                 }
                 else
                 {
-                    try
-                    {
-                        //ここでyt-dlpとffmpegダウンロードする
-                        FileDownloader fld = new FileDownloader();
-                        DownloadNow dln = new DownloadNow();
-                        Notouch();
-                        dln.Show();
-                        var ytdlp = await fld.GetContent("https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe");
-                        using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
-                        {
-                            //ファイルに書き込む
-                            ytdlp.WriteTo(fs);
-                            ytdlp.Close();
-                            ShowNotif("Download Done!", "YT-DLPのダウンロードが終わりました");
-                        }
-
-                        var ffmpeg = await fld.GetContent("https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip");
-                        ZipFile.ExtractToDirectory(ffmpeg, @".\");
-                        ffmpeg.Close();
-                        dln.Close();
-                        isRunning = true;
-                        ShowNotif("Download Done!", "FFMPEGのダウンロードが終わりました");
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.ToString());
-                    }
-
+                    await DownloadTool();
                 }
             }
         }
+        /// <summary>
+        /// ここで必要なツールをダウンロード
+        /// </summary>
+        /// <returns></returns>
+        private async Task DownloadTool()
+        {
+            try
+            {
+                //ここでyt-dlpとffmpegダウンロードする
+                FileDownloader fld = new FileDownloader();
+                DownloadNow dln = new DownloadNow();
+                Notouch();
+                dln.Show();
+                var ytdlp = await fld.GetContent("https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe");
+                using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
+                {
+                    //ファイルに書き込む
+                    ytdlp.WriteTo(fs);
+                    ytdlp.Close();
+                    ShowNotif("Download Done!", "YT-DLPのダウンロードが終わりました");
+                }
+
+                var ffmpeg = await fld.GetContent("https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip");
+                ZipFile.ExtractToDirectory(ffmpeg, @".\");
+                ffmpeg.Close();
+                dln.Close();
+                isRunning = true;
+                ShowNotif("Download Done!", "FFMPEGのダウンロードが終わりました");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
         int count = 1;
         private void showProgress(DownloadProgress p)
         {
@@ -349,12 +340,10 @@ namespace yt_dlp_GUI_dotnet8
             Debug.WriteLine("初期化完了");
             webview.CoreWebView2.Navigate("https://google.com");
         }
-
         private void right_Click(object sender, RoutedEventArgs e)
         {
             webview.GoForward();
         }
-
         private void reload_Click(object sender, RoutedEventArgs e)
         {
             bool a = false;
@@ -367,7 +356,6 @@ namespace yt_dlp_GUI_dotnet8
                 webview.Reload();
             }
         }
-
         private void left_Click(object sender, RoutedEventArgs e)
         {
             webview.GoBack();
@@ -386,31 +374,23 @@ namespace yt_dlp_GUI_dotnet8
             isRunning = true;
             load.Close();
         }
-
         public class DLList()
         {
             public string url { get; set; }
             public string name { get; set; }
-
-
         }
-
         private void cookie_Checked(object sender, RoutedEventArgs e)
         {
             PasswordBox.IsEnabled = true;
             Cookies.IsEnabled = true;
             WriteSettings("Cookies_Enabled", "true");
         }
-
         private void cookie_Unchecked(object sender, RoutedEventArgs e)
         {
             PasswordBox.IsEnabled = false;
             Cookies.IsEnabled = false;
             WriteSettings("Cookies_Enabled", "false");
-
-
         }
-
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
             dLLists.Clear();
@@ -420,9 +400,13 @@ namespace yt_dlp_GUI_dotnet8
             AddUrl addURl = new AddUrl();
             addURl.ShowDialog();
             var urls = addURl.urls;
+
             try
             {
-                await CheckUrl(urls);
+                if (urls != null)
+                {
+                    await UrlCheck(urls);
+                }
             }
             catch (Exception ex)
             {
@@ -431,54 +415,32 @@ namespace yt_dlp_GUI_dotnet8
 
 
         }
-        /// <summary>
-        /// ここでUrlをチェック
-        /// </summary>
-        /// <param name="urls"></param>
-        /// <returns></returns>
-        private async Task CheckUrl(string[] urls)
+
+        private async Task UrlCheck(string[] urls)
         {
-            if (urls != null)
+            GetInfomation getInfomation = new GetInfomation();
+            Loading load = new Loading();
+            load.Show();
+            Notouch();
+            foreach (var url in urls)
             {
-                try
-                {
-                    GetInfomation getInfomation = new GetInfomation();
-                    Loading load = new Loading();
-                    load.Show();
-                    Notouch();
-                    foreach (var url in urls)
-                    {
-                GetInfomation getInfomation = new GetInfomation();
-                foreach (var url in urls)
-                {
 
-                        if (IsValidUrl(url))
-                        {
-                            var result = await getInfomation.Infomation(url);
-                            string Title = result.Title;
-                            dLLists.Add(new DLList { url = url, name = Title });
-                        }
-                    }
-                    list.ItemsSource = dLLists;
-                    isRunning = true;
-                    load.Close();
-                }
-                catch (Exception ex)
+                if (IsValidUrl(url))
                 {
-                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                    var result = await getInfomation.Infomation(url);
+                    string Title = result.Title;
+                    dLLists.Add(new DLList { url = url, name = Title });
                 }
             }
-                    if (IsValidUrl(url))
-                    {
-                        var result = await getInfomation.Infomation(url);
-                        string Title = result.Title;
-                        dLLists.Add(new DLList { url = url, name = Title });
-                    }
-                }
-                list.ItemsSource = dLLists;
-            }
+            list.ItemsSource = dLLists;
+            isRunning = true;
+            load.Close();
         }
-
+        /// <summary>
+        /// きちんとしたURLのフォーマットになっているかチェック
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public static bool IsValidUrl(string url)
         {
             return Uri.IsWellFormedUriString(url, UriKind.Absolute);
@@ -609,9 +571,6 @@ namespace yt_dlp_GUI_dotnet8
         {
             WriteSettings("codec_Audio", Convert.ToString(codec_Audio.SelectedIndex));
         }
-
-        //ここでSettings内の設定を書き込む
-        //というかxmlで書き込みたい。
         private void WriteSettings(string Title, string value)
         {
             if (!UseSettingsFile)

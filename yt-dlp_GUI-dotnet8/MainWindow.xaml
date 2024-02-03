@@ -164,7 +164,6 @@
                     Margin="10,86,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Click="Button_Click_1"
                     Content="Clear" />
             </Grid>
         </TabItem>
