@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace yt_dlp_GUI_dotnet8
+namespace yt_dlp_GUI_dotnet8.Tool
 {
-    class DL
+    internal class RecentLoader
     {
-        
     }
 }

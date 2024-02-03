@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using MaterialDesignThemes.Wpf;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Options;
+using yt_dlp_GUI_dotnet8.Tool;
 
 namespace yt_dlp_GUI_dotnet8
 {
@@ -28,6 +30,12 @@ namespace yt_dlp_GUI_dotnet8
             QuestionDownloadFirst();
             Settings_Apply();
             progress = new Progress<DownloadProgress>((p) => showProgress(p));
+            PaletteHelper palette = new PaletteHelper();
+
+            ITheme theme = palette.GetTheme();
+
+            theme.SetBaseTheme(Theme.Dark);
+            palette.SetTheme(theme);
 
         }
         private bool UseSettingsFile = false;
@@ -185,7 +193,7 @@ namespace yt_dlp_GUI_dotnet8
             {
                 Format = $"bestvideo+251/bestvideo+bestaudio/best",
                 FormatSort = $"vcodec:{videoFormat}",
-                AudioFormat = AudioConversionFormat.Aac,
+                AudioFormat = AudioConversion,
                 WriteThumbnail = true,
                 WriteSubs = true,
                 WriteAutoSubs = true,
@@ -216,6 +224,7 @@ namespace yt_dlp_GUI_dotnet8
         private async Task Notouch()
         {
             this.IsEnabled = false;
+            isRunning = false;
             await Task.Run(() =>
             {
                 while (true)
@@ -286,8 +295,8 @@ namespace yt_dlp_GUI_dotnet8
         int count = 1;
         private void showProgress(DownloadProgress p)
         {
-            txtState.Content = p.State.ToString();
             prog.Value = p.Progress;
+            Title = p.State.ToString();
             int a = (int)(p.Progress * 100);
             progText.Content = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             if (p.State.ToString() == "Success")
@@ -309,9 +318,8 @@ namespace yt_dlp_GUI_dotnet8
                     ShowNotif("All Done!", "おわったお");
                     list.ClearValue(ItemsControl.ItemsSourceProperty);
                     folder = "none";
-                    count = 0;
+                    count = 1;
                     progText.Content = "Download States";
-                    txtState.Content = "States";
                     dLLists.Clear();
                 }
 
@@ -368,10 +376,15 @@ namespace yt_dlp_GUI_dotnet8
         private async void download_Click_1(object sender, RoutedEventArgs e)
         {
             GetInfomation getInfomation = new GetInfomation();
+            Loading load = new Loading();
+            load.Show();
+            Notouch();
             var result = await getInfomation.Infomation(webview.CoreWebView2.Source);
-            string Title = result.Title;
+            string Title = result == null ? "none" : result.Title;
             dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title });
             list.ItemsSource = dLLists;
+            isRunning = true;
+            load.Close();
         }
 
         public class DLList()
@@ -427,10 +440,34 @@ namespace yt_dlp_GUI_dotnet8
         {
             if (urls != null)
             {
+                try
+                {
+                    GetInfomation getInfomation = new GetInfomation();
+                    Loading load = new Loading();
+                    load.Show();
+                    Notouch();
+                    foreach (var url in urls)
+                    {
                 GetInfomation getInfomation = new GetInfomation();
                 foreach (var url in urls)
                 {
 
+                        if (IsValidUrl(url))
+                        {
+                            var result = await getInfomation.Infomation(url);
+                            string Title = result.Title;
+                            dLLists.Add(new DLList { url = url, name = Title });
+                        }
+                    }
+                    list.ItemsSource = dLLists;
+                    isRunning = true;
+                    load.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
                     if (IsValidUrl(url))
                     {
                         var result = await getInfomation.Infomation(url);
@@ -502,13 +539,18 @@ namespace yt_dlp_GUI_dotnet8
         {
             if (SearchBox_Info.Text != "" && SearchBox_Info.Text.Contains("https://"))
             {
+                //初期化
+                Loading load = new Loading();
                 GetInfomation get = new GetInfomation();
+                Notouch();
+                load.Show();
                 var video = await get.Infomation(SearchBox_Info.Text);
                 BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
                 thumbPic.Source = bti;
                 VideoTitle.Header = video.Title;
                 VidInfo.Text = video.ToString();
-
+                load.Close();
+                isRunning = true;
             }
             else
             {
@@ -560,7 +602,6 @@ namespace yt_dlp_GUI_dotnet8
                 folder = "none";
                 count = 0;
                 progText.Content = "Download States";
-                txtState.Content = "States";
             }
         }
 
@@ -601,6 +642,16 @@ namespace yt_dlp_GUI_dotnet8
         {
             codec_Audio.IsEnabled = false;
             WriteSettings("codec_Audio_Enabled", "false");
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var result = MessageBox.Show("アプリを終了してもよろしいでしょうか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+                return;
+            }
         }
     }
 }

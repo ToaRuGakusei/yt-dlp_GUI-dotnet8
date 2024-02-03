@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 
-namespace yt_dlp_GUI_dotnet8
+namespace yt_dlp_GUI_dotnet8.Tool
 {
     public class SettingsLoader
     {
@@ -13,7 +13,8 @@ namespace yt_dlp_GUI_dotnet8
                 string result = sm.ReadToEnd();
                 sm.Close();
                 return result;
-            }else
+            }
+            else
             {
                 return "114514";
             }

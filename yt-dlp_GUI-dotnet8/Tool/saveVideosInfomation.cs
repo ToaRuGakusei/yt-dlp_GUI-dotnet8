@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace yt_dlp_GUI_dotnet8
+namespace yt_dlp_GUI_dotnet8.Tool
 {
     public class saveVideosInfomation : GetInfomation
     {
@@ -14,12 +14,12 @@ namespace yt_dlp_GUI_dotnet8
         {
             var result = await Infomation(Url);
             Directory.CreateDirectory(@".\Recent");
-            using(StreamWriter sw = new StreamWriter(@".\Recent\DownloadRecent.txt",true))
+            using (StreamWriter sw = new StreamWriter(@".\Recent\DownloadRecent.txt", true))
             {
                 sw.WriteLine($"{result.Title.ToString()},{result.Thumbnail}");
             }
             loadInfo();
-            
+
         }
         public class VideoInfo
         {
@@ -28,11 +28,11 @@ namespace yt_dlp_GUI_dotnet8
         public static ObservableCollection<VideoInfo> ob = new ObservableCollection<VideoInfo>();
         public void loadInfo()
         {
-            using(StreamReader sm = new StreamReader(@".\Recent\DownloadRecent.txt"))
+            using (StreamReader sm = new StreamReader(@".\Recent\DownloadRecent.txt"))
             {
-                while(sm.Peek() == -1)
+                while (sm.Peek() == -1)
                 {
-                    ob.Add(new VideoInfo { Title = sm.ReadLine()});
+                    ob.Add(new VideoInfo { Title = sm.ReadLine() });
                 }
             }
         }

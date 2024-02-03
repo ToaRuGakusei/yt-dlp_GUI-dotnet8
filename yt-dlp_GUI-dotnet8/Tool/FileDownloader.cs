@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Http;
 
-namespace yt_dlp_GUI_dotnet8
+namespace yt_dlp_GUI_dotnet8.Tool
 {
     public class FileDownloader
     {
@@ -13,11 +13,11 @@ namespace yt_dlp_GUI_dotnet8
         public static long TotalBytes = 0;
         public async Task<MemoryStream> GetContent(string Url)
         {
-            if(Url.Contains("yt-dlp.exe"))
+            if (Url.Contains("yt-dlp.exe"))
             {
                 WhatName = "yt-dlp";
             }
-            else
+            else if (Url.Contains("ffmpeg"))
             {
                 WhatName = "ffmpeg";
             }
