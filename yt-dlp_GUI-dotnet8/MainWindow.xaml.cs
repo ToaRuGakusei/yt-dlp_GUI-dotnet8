@@ -21,7 +21,7 @@ namespace yt_dlp_GUI_dotnet8
     /// </summary>
     public partial class MainWindow : Window
     {
-        //初期化（設定など）
+        //初期化
         private IProgress<DownloadProgress> progress;
         private string cookieBrowser;
         private string videoFormat;
@@ -31,6 +31,7 @@ namespace yt_dlp_GUI_dotnet8
         private bool Codec_Enabled = false;
         private bool Codec_Audio_Enabled = false;
         private bool container_Enabled = false;
+        //設定関連の初期化
         private string Cookie = "";
         private int Pixel = 0;
         private int Codec = 0;
@@ -54,9 +55,12 @@ namespace yt_dlp_GUI_dotnet8
         private string Cookies_Path = @".\Cookies.txt";
         private string[] Codec_List = { "h264", "h265", "vp9", "av1" };
 
+        //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
         private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
+        private DownloadMergeFormat mergeOutputFormat;
 
+        //配列で呼び出す
         private ObservableCollection<DownloadMergeFormat> mergeList = new ObservableCollection<DownloadMergeFormat>
         {DownloadMergeFormat.Mp4,
          DownloadMergeFormat.Mkv,
@@ -69,7 +73,6 @@ namespace yt_dlp_GUI_dotnet8
           AudioConversionFormat.Flac};
 
 
-        private DownloadMergeFormat mergeOutputFormat;
 
         private readonly string title = "AllVideoDownloader(仮)";
         public class DLList()
@@ -142,6 +145,9 @@ namespace yt_dlp_GUI_dotnet8
             if (Video != -9)
                 video_Value = video[Video];
 
+            if (Cookie == "-9")
+                Cookie = "";
+
             if (Merge != -9)
             {
                 mergeOutputFormat = mergeList[Merge];
@@ -179,6 +185,8 @@ namespace yt_dlp_GUI_dotnet8
                 }
             }
         }
+
+        //Toast通知発火
         public static void ShowNotif(string title, string body)
         {
             new ToastContentBuilder()
@@ -215,15 +223,16 @@ namespace yt_dlp_GUI_dotnet8
         {
             var options = new OptionSet()
             {
-                Format = $"{video_Value}+251/bestvideo+bestaudio/best",
-                FormatSort = $"vcodec:{videoFormat}",
-                AudioFormat = AudioConversion,
-                MergeOutputFormat = mergeOutputFormat,
-                Cookies = Cookie,
-                EmbedMetadata = true,
-                EmbedThumbnail = true,
-                IgnoreErrors = true,
-                Retries = 5
+                Format = $"{video_Value}+251/bestvideo+bestaudio/best", //動画のダウンロード形式を指定
+                FormatSort = $"vcodec:{videoFormat}", //コーディックを指定
+                AudioFormat = AudioConversion, //オーディオコーデックを指定
+                MergeOutputFormat = mergeOutputFormat, //コンテナ？を指定
+                Cookies = Cookie, //クッキーを指定
+                EmbedMetadata = true, //メタデータを付加
+                EmbedThumbnail = true, //サムネイルを付加
+                IgnoreErrors = true, //エラー無視
+                //ListFormats = true, //フォーマットリストを表示？
+                Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
             };
             run = Task.Run(() =>
             {
