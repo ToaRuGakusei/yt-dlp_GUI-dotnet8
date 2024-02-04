@@ -226,6 +226,7 @@ namespace yt_dlp_GUI_dotnet8
                 Format = $"{video_Value}+251/bestvideo+bestaudio/best", //動画のダウンロード形式を指定
                 FormatSort = $"vcodec:{videoFormat}", //コーディックを指定
                 AudioFormat = AudioConversion, //オーディオコーデックを指定
+                //CookiesFromBrowser = //ブラウザからクッキーを取得
                 MergeOutputFormat = mergeOutputFormat, //コンテナ？を指定
                 Cookies = Cookie, //クッキーを指定
                 EmbedMetadata = true, //メタデータを付加
