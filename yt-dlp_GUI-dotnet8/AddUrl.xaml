@@ -16,6 +16,7 @@
     MaxWidth="800"
     MaxHeight="450"
     Background="White"
+    Unloaded="Window_Unloaded"
     mc:Ignorable="d">
     <StackPanel>
         <Grid Height="370">

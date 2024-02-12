@@ -78,6 +78,20 @@
                     IsEnabled="True">
                     <ListView.View>
                         <GridView>
+                            <GridViewColumn Width="200" Header="Cover">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image
+                                                Width="200"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Source="{Binding image}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding name}" Header="Title" />
                             <GridViewColumn DisplayMemberBinding="{Binding url}" Header="URL" />
                         </GridView>
@@ -85,9 +99,9 @@
                 </ListView>
                 <ProgressBar
                     Name="prog"
-                    Height="4"
-                    Margin="10,0,10,10"
-                    VerticalAlignment="Bottom"
+                    Height="25"
+                    Margin="246,26,10,0"
+                    VerticalAlignment="Top"
                     IsEnabled="True"
                     Maximum="1"
                     Minimum="0.01" />
@@ -131,6 +145,7 @@
                     VerticalContentAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    SelectionChanged="listView_Recent_Selected"
                     SelectionMode="Single">
                     <ListView.View>
                         <GridView>
@@ -149,7 +164,6 @@
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" />
-                            <GridViewColumn DisplayMemberBinding="{Binding Page}" Header="Page" />
                             <GridViewColumn
                                 Width="300"
                                 DisplayMemberBinding="{Binding URI}"
@@ -163,6 +177,7 @@
                     Margin="10,86,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
+                    Click="Button_Click"
                     Content="Clear" />
             </Grid>
         </TabItem>
@@ -535,6 +550,34 @@
                         <ComboBoxItem Content="MP4" />
                         <ComboBoxItem Content="MKV" />
                         <ComboBoxItem Content="FLV" />
+                    </ComboBox>
+                </Grid>
+                <Grid Height="56">
+                    <Label
+                        Width="151"
+                        Margin="34,16,0,12"
+                        HorizontalAlignment="Left"
+                        Content="音声のみダウンロード" />
+                    <ToggleButton
+                        x:Name="audio_Only_Toggle"
+                        Width="34"
+                        Margin="0,2,0,-2"
+                        HorizontalAlignment="Left"
+                        Checked="audio_Only_Toggle_Checked"
+                        IsChecked="False"
+                        RenderTransformOrigin="0.5,0.5"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        Unchecked="audio_Only_Toggle_Unchecked" />
+                    <ComboBox
+                        Name="Only"
+                        Margin="190,14,297,10"
+                        materialDesign:HintAssist.Hint="オーディオコーディック"
+                        DropDownClosed="codec_Audio_DropDownClosed"
+                        IsEnabled="False">
+                        <ComboBoxItem Content="MP3" />
+                        <ComboBoxItem Content="AAC" />
+                        <ComboBoxItem Content="FLAC" />
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">

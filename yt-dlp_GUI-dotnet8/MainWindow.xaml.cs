@@ -54,6 +54,7 @@ namespace yt_dlp_GUI_dotnet8
         private AudioConversionFormat AudioConversion;
         private string Cookies_Path = @".\Cookies.txt";
         private string[] Codec_List = { "h264", "h265", "vp9", "av1" };
+        private bool Cookies_Found = false;
 
         //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
@@ -79,6 +80,7 @@ namespace yt_dlp_GUI_dotnet8
         {
             public string url { get; set; }
             public string name { get; set; }
+            public Uri image { get; set; }
         }
         public MainWindow()
         {
@@ -123,7 +125,7 @@ namespace yt_dlp_GUI_dotnet8
             Codec_Enabled = settingsLoader.SettingEnabled_Check("codec_Enabled") == "true" ? true : false;
             Codec_Audio_Enabled = settingsLoader.SettingEnabled_Check("codec_Audio_Enabled") == "true" ? true : false;
             container_Enabled = settingsLoader.SettingEnabled_Check("container_Enabled") == "true" ? true : false;
-            Cookie = settingsLoader.SettingGetter("Cookies").Replace("\r\n","").Replace("\"","");
+            Cookie = settingsLoader.SettingGetter("Cookies").Replace("\r\n", "").Replace("\"", "");
             Pixel = int.Parse(settingsLoader.SettingGetter("resolution"));
             Codec = int.Parse(settingsLoader.SettingGetter("codec"));
             Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
@@ -136,7 +138,7 @@ namespace yt_dlp_GUI_dotnet8
             CodecToggle.IsChecked = Codec_Enabled;
             Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
             container_Toggle.IsChecked = container_Enabled;
-            if(Codec_Audio != -9)
+            if (Codec_Audio != -9)
                 AudioConversion = AudioList[Codec_Audio];
 
             if (Codec != -9)
@@ -146,7 +148,14 @@ namespace yt_dlp_GUI_dotnet8
                 video_Value = video[Video];
 
             if (Cookie == "-9")
+            {
                 Cookie = "";
+                Cookies_Found = false;
+            }
+            else
+            {
+                Cookies_Found = true;
+            }
 
             if (Merge != -9)
             {
@@ -161,8 +170,19 @@ namespace yt_dlp_GUI_dotnet8
             container.SelectedIndex = Merge == -9 ? -1 : Merge;
             PasswordBox.Text = Cookie;
 
+            SetRecent(); //履歴セット
+
             //設定ファイルへのアクセスを解放
             UseSettingsFile = false;
+        }
+
+        private void SetRecent()
+        {
+            saveVideosInfomation.ob.Clear();
+            saveVideosInfomation Infomation = new saveVideosInfomation();
+            Infomation.loadInfo();
+            listView_Recent.ItemsSource = saveVideosInfomation.ob;
+
         }
         /// <summary>
         /// ここでWebView関連の設定を行っている
@@ -172,7 +192,6 @@ namespace yt_dlp_GUI_dotnet8
             //初期化完了時のイベント
             webview.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
             await webview.EnsureCoreWebView2Async(null);
-
             //新しいタブで開かないようにする。
             webview.CoreWebView2.NewWindowRequested += NewWindowRequested;
             webview.CoreWebView2.SourceChanged += CompletedPage;
@@ -223,11 +242,13 @@ namespace yt_dlp_GUI_dotnet8
         {
             var options = new OptionSet()
             {
-                Format = $"{video_Value}+251/bestvideo+bestaudio/best", //動画のダウンロード形式を指定
+                Format = $"{video_Value}+bestaudio/bestvideo+bestaudio", //動画のダウンロード形式を指定
                 FormatSort = $"vcodec:{videoFormat}", //コーディックを指定
                 AudioFormat = AudioConversion, //オーディオコーデックを指定
+                ExtractAudio = (bool)audio_Only_Toggle.IsChecked, //Audioのみになる。（なぜかきちんとコーデックが反映されている）
                 MergeOutputFormat = mergeOutputFormat, //コンテナ？を指定
                 Cookies = Cookie, //クッキーを指定
+                NoCookies = !(bool)cookie.IsChecked, //クッキーを無効化
                 EmbedMetadata = true, //メタデータを付加
                 EmbedThumbnail = true, //サムネイルを付加
                 IgnoreErrors = true, //エラー無視
@@ -350,7 +371,7 @@ namespace yt_dlp_GUI_dotnet8
                 saveVideosInfomation sv = new saveVideosInfomation();
                 if (dLLists.Count != count)
                 {
-                    sv.saveInfo(((DLList)list.Items[count - 1]).url);
+                    sv.SaveInfo(((DLList)list.Items[count - 1]).url);
                     count += 1;
                     Debug.WriteLine($"Count::{count - 1}");
                     var b = ((DLList)list.Items[count - 1]).url;
@@ -372,7 +393,7 @@ namespace yt_dlp_GUI_dotnet8
 
         private void EndDownload(saveVideosInfomation sv)
         {
-            sv.saveInfo(((DLList)list.Items[count - 1]).url);
+            sv.SaveInfo(((DLList)list.Items[count - 1]).url);
             listView_Recent.ItemsSource = saveVideosInfomation.ob;
             ShowNotif("All Done!", "おわったお");
             list.ClearValue(ItemsControl.ItemsSourceProperty);
@@ -456,16 +477,19 @@ namespace yt_dlp_GUI_dotnet8
             AddUrl addURl = new();
             addURl.ShowDialog();
             var urls = addURl.urls;
-
-            try
+            if(urls != null)
             {
-                await UrlsCheck(urls);
+                try
+                {
+                    await UrlsCheck(urls);
 
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            catch (Exception)
-            {
-                MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+
 
 
         }
@@ -485,7 +509,7 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     result = await getInfomation.Infomation(url);
                     Title = result.Title;
-                    dLLists.Add(new DLList { url = url, name = Title });
+                    dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail) });
                 }
             }
             list.ItemsSource = dLLists;
@@ -545,7 +569,7 @@ namespace yt_dlp_GUI_dotnet8
 
                     //本処理
                     var video = await get.Infomation(SearchBox_Info.Text);
-                    if(video != null)
+                    if (video != null)
                     {
                         BitmapImage bti = new BitmapImage(new Uri(video.Thumbnail));
                         thumbPic.Source = bti;
@@ -581,7 +605,7 @@ namespace yt_dlp_GUI_dotnet8
                 ShowNotif("Cancel", "キャンセルされたお");
                 list.ClearValue(ItemsControl.ItemsSourceProperty);
                 folder = "none";
-                count = 0;
+                count = 1;
                 progText.Content = "Download States";
             }
         }
@@ -596,7 +620,36 @@ namespace yt_dlp_GUI_dotnet8
             }
         }
 
-        //以下より下は設定のメソッドしかない。
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            saveVideosInfomation.ob.Clear();
+            string DownloadRecent_Path = @".\Recent\DownloadRecent.txt";
+            File.Delete(DownloadRecent_Path);
+            ShowNotif("成功", "履歴を削除しました");
+
+        }
+        private void WriteSettings(string Title, string value)
+        {
+            if (!UseSettingsFile)
+            {
+                Directory.CreateDirectory(@".\Settings");
+                using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
+                {
+                    sw.WriteLine(value);
+                }
+            }
+
+        }
+        private void ReadSettings(string Title, string value)
+        {
+            Directory.CreateDirectory(@".\Settings");
+            using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
+            {
+                sw.WriteLine(value);
+            }
+        }
+
+        //以下より下は設定のメソッドしかないじゃない。
 
         private void SetPixel_Checked(object sender, RoutedEventArgs e)
         {
@@ -625,7 +678,33 @@ namespace yt_dlp_GUI_dotnet8
             codec.IsEnabled = false;
             WriteSettings("codec_Enabled", "false");
         }
+        private void audio_Only_Toggle_Checked(object sender, RoutedEventArgs e)
+        {
+            Only.IsEnabled = true;
+            combo.IsEnabled = false;
+            codec.IsEnabled = false;
+            codec_Audio.IsEnabled = false;
+            container.IsEnabled = false;
+            container_Toggle.IsEnabled = false;
+            Codec_Audio_Toggle.IsEnabled = false;
+            CodecToggle.IsEnabled = false;
+            SetPixel.IsEnabled = false;
+            WriteSettings("Audio_Only_Enabled", "true");
+        }
+        private void audio_Only_Toggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Only.IsEnabled = false;
+            combo.IsEnabled = true;
+            codec_Audio.IsEnabled = true;
+            codec.IsEnabled = true;
+            container.IsEnabled = true;
+            container_Toggle.IsEnabled = true;
+            Codec_Audio_Toggle.IsEnabled = true;
+            CodecToggle.IsEnabled = true;
+            SetPixel.IsEnabled = true;
 
+            WriteSettings("Audio_Only_Enabled", "false");
+        }
         private void Cookies_Clicked_Click(object sender, RoutedEventArgs e)
         {
             if (PasswordBox.Text != "")
@@ -648,26 +727,6 @@ namespace yt_dlp_GUI_dotnet8
         private void codec_Audio_DropDownClosed(object sender, EventArgs e)
         {
             WriteSettings("codec_Audio", Convert.ToString(codec_Audio.SelectedIndex));
-        }
-        private void WriteSettings(string Title, string value)
-        {
-            if (!UseSettingsFile)
-            {
-                Directory.CreateDirectory(@".\Settings");
-                using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
-                {
-                    sw.WriteLine(value);
-                }
-            }
-
-        }
-        private void ReadSettings(string Title, string value)
-        {
-            Directory.CreateDirectory(@".\Settings");
-            using (StreamWriter sw = new StreamWriter($@".\Settings\{Title}.txt", false))
-            {
-                sw.WriteLine(value);
-            }
         }
         private void Codec_Audio_Toggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -693,6 +752,33 @@ namespace yt_dlp_GUI_dotnet8
         private void container_DropDownClosed(object sender, EventArgs e)
         {
             WriteSettings("container", Convert.ToString(container.SelectedIndex));
+        }
+
+        private void codec_Audio_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void listView_Recent_Selected(object sender, RoutedEventArgs e)
+        {
+            if (listView_Recent.SelectedItem != null)
+            {
+                string _u = (listView_Recent.Items[listView_Recent.SelectedIndex] as saveVideosInfomation.VideoInfo).URI;
+                Debug.WriteLine(_u);
+                try
+                {
+                    Clipboard.SetData(DataFormats.Text, _u);
+                    ShowNotif("成功", "URLをクリップボードに貼り付けました");
+
+                }
+                catch (Exception ex)
+                {
+                    ShowNotif("失敗", "URLの取得に失敗しました");
+                }
+
+
+            }
+            listView_Recent.SelectedItem = null;
         }
 
     }

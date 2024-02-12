@@ -14,7 +14,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 var ytdl = new YoutubeDL();
                 ytdl.YoutubeDLPath = @".\yt-dlp.exe";
                 ytdl.FFmpegPath = @".\ffmpeg.exe";
-                VideoData? videoData = null;
+                VideoData videoData = null;
                 try
                 {
                     var res = await ytdl.RunVideoDataFetch(url);

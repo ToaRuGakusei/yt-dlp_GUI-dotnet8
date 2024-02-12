@@ -38,5 +38,10 @@ namespace yt_dlp_GUI_dotnet8
             urls = tmp.Split("\r\n");
             this.Close();
         }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
