@@ -1,4 +1,4 @@
-﻿using MaterialDesignThemes.Wpf;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -74,7 +74,8 @@ namespace yt_dlp_GUI_dotnet8
         {
           AudioConversionFormat.Mp3,
           AudioConversionFormat.Aac,
-          AudioConversionFormat.Flac};
+          AudioConversionFormat.Flac
+        };
 
 
         private readonly string title = "AllVideoDownloader(仮)";
@@ -206,7 +207,7 @@ namespace yt_dlp_GUI_dotnet8
             {
                 using (StreamReader sm = new StreamReader(Cookies_Path))
                 {
-                    cookieBrowser = sm.ReadToEnd();
+                    cookieBrowser = sm.ReadToEnd(); //CookiesをStreamReaderで取得
                 }
             }
         }
