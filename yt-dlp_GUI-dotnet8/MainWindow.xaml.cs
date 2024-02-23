@@ -39,6 +39,7 @@ namespace yt_dlp_GUI_dotnet8
         private int Video = 0;
         private int video_Value = 0;
         private int Merge = 0;
+        private int Audio_Only_Value = 0;
 
         //初期化（ダウンロード関連）
         private CancellationTokenSource cts;
@@ -52,9 +53,11 @@ namespace yt_dlp_GUI_dotnet8
         private string yt_dlp_Download_URL = "https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe";
         private string ffmpeg_Download_URL = "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip";
         private AudioConversionFormat AudioConversion;
+        private AudioConversionFormat AudioOnlyConversion;
         private string Cookies_Path = @".\Cookies.txt";
         private string[] Codec_List = { "h264", "h265", "vp9", "av1" };
         private bool Cookies_Found = false;
+        private Loading loading;
 
         //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
@@ -74,13 +77,13 @@ namespace yt_dlp_GUI_dotnet8
           AudioConversionFormat.Flac};
 
 
-
         private readonly string title = "AllVideoDownloader(仮)";
         public class DLList()
         {
             public string url { get; set; }
             public string name { get; set; }
             public Uri image { get; set; }
+            public bool isLive { get; set; }
         }
         public MainWindow()
         {
@@ -131,6 +134,7 @@ namespace yt_dlp_GUI_dotnet8
             Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
             Video = int.Parse(settingsLoader.SettingGetter("resolution"));
             Merge = int.Parse(settingsLoader.SettingGetter("container"));
+            Audio_Only_Value = int.Parse(settingsLoader.SettingGetter("Audio_Only"));
 
             //設定反映(´・ω・`)
             cookie.IsChecked = Cookies_Enabled;
@@ -140,6 +144,9 @@ namespace yt_dlp_GUI_dotnet8
             container_Toggle.IsChecked = container_Enabled;
             if (Codec_Audio != -9)
                 AudioConversion = AudioList[Codec_Audio];
+
+            if (Audio_Only_Value != -9)
+                AudioOnlyConversion = AudioList[Audio_Only_Value];
 
             if (Codec != -9)
                 videoFormat = Codec_List[Codec];
@@ -162,12 +169,11 @@ namespace yt_dlp_GUI_dotnet8
                 mergeOutputFormat = mergeList[Merge];
             }
 
-
-            //-9は取得できなかったということで、何も表示させないために-1を代入させる。それ以外の場合はそのまま代入。
-            combo.SelectedIndex = Pixel == -9 ? -1 : Pixel;
-            codec.SelectedIndex = Codec == -9 ? -1 : Codec;
-            codec_Audio.SelectedIndex = Codec_Audio == -9 ? -1 : Codec_Audio;
-            container.SelectedIndex = Merge == -9 ? -1 : Merge;
+            //-9は取得できなかったということで、何も表示させないために0を代入させる。それ以外の場合はそのまま代入。
+            combo.SelectedIndex = Pixel == -9 ? 0 : Pixel;
+            codec.SelectedIndex = Codec == -9 ? 0 : Codec;
+            codec_Audio.SelectedIndex = Codec_Audio == -9 ? 0 : Codec_Audio;
+            container.SelectedIndex = Merge == -9 ? 0 : Merge;
             PasswordBox.Text = Cookie;
 
             SetRecent(); //履歴セット
@@ -206,7 +212,7 @@ namespace yt_dlp_GUI_dotnet8
         }
 
         //Toast通知発火
-        public static void ShowNotif(string title, string body)
+        public static void ShowToast(string title, string body)
         {
             new ToastContentBuilder()
                         .AddText(title)
@@ -237,9 +243,20 @@ namespace yt_dlp_GUI_dotnet8
                     MessageBox.Show("キャンセルされました。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+            else
+            {
+                ytdl.OutputFolder = folder;
+                DownloadVideo(url, ytdl);
+            }
         }
         private void DownloadVideo(string url, YoutubeDL ytdl)
         {
+
+            if ((dLLists[0] as DLList).isLive)
+            {
+                loading = new Loading(true);
+                loading.Show();
+            }
             var options = new OptionSet()
             {
                 Format = $"{video_Value}+bestaudio/bestvideo+bestaudio", //動画のダウンロード形式を指定
@@ -344,7 +361,7 @@ namespace yt_dlp_GUI_dotnet8
             ZipFile.ExtractToDirectory(ffmpeg, @".\");
             ffmpeg.Close();
             dln.Close();
-            ShowNotif("Download Done!", "FFMPEGのダウンロードが終わりました");
+            ShowToast("Download Done!", "FFMPEGのダウンロードが終わりました");
         }
 
         private async Task yt_dlp_Download(FileDownloader fld)
@@ -355,7 +372,7 @@ namespace yt_dlp_GUI_dotnet8
                 //ファイルに書き込む
                 ytdlp.WriteTo(fs);
                 ytdlp.Close();
-                ShowNotif("Download Done!", "YT-DLPのダウンロードが終わりました");
+                ShowToast("Download Done!", "YT-DLPのダウンロードが終わりました");
             }
         }
 
@@ -366,6 +383,7 @@ namespace yt_dlp_GUI_dotnet8
             int a = (int)(p.Progress * 100);
             Title = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             progText.Content = p.State;
+
             if (p.State.ToString() == "Success")
             {
                 saveVideosInfomation sv = new saveVideosInfomation();
@@ -376,27 +394,49 @@ namespace yt_dlp_GUI_dotnet8
                     Debug.WriteLine($"Count::{count - 1}");
                     var b = ((DLList)list.Items[count - 1]).url;
                     Debug.WriteLine(b);
+                    if (loading != null)
+                    {
+                        loading.Close();
+                    }
                     DownloadAsync(b);
                 }
                 else
                 {
-                    EndDownload(sv);
+                    if(loading != null)
+                    {
+                        loading.Close();
+                    }
+                    EndDownload(sv, false);
                 }
 
             }
             else if (p.State.ToString() == "Error")
             {
-                MessageBox.Show("失敗");
+                EndDownload(null, true);
                 Debug.WriteLine(p.State.ToString());
             }
         }
 
-        private void EndDownload(saveVideosInfomation sv)
+        private void EndDownload(saveVideosInfomation sv, bool error)
         {
-            sv.SaveInfo(((DLList)list.Items[count - 1]).url);
-            listView_Recent.ItemsSource = saveVideosInfomation.ob;
-            ShowNotif("All Done!", "おわったお");
+            if (sv != null)
+            {
+                sv.SaveInfo(((DLList)list.Items[count - 1]).url);
+                listView_Recent.ItemsSource = saveVideosInfomation.ob;
+            }
+            if (error)
+            {
+                ShowToast("Error!", "エラーが発生しました");
+            }
+            else
+            {
+                ShowToast("All Done!", "おわったお");
+            }
             list.ClearValue(ItemsControl.ItemsSourceProperty);
+            if (loading != null)
+            {
+                loading.Close();
+            }
             folder = "none";
             count = 1;
             progText.Content = "Download States";
@@ -446,12 +486,19 @@ namespace yt_dlp_GUI_dotnet8
         private async void download_Click_1(object sender, RoutedEventArgs e)
         {
             GetInfomation getInfomation = new GetInfomation();
-            Loading load = new Loading();
+            Loading load = new Loading(false);
             load.Show();
             Notouch();
             var result = await getInfomation.Infomation(webview.CoreWebView2.Source);
             string Title = result == null ? "none" : result.Title;
-            dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title });
+            if (result.LiveStatus == LiveStatus.IsLive)
+            {
+                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true });
+            }
+            else
+            {
+                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false });
+            }
             list.ItemsSource = dLLists;
             isEnd = true;
             load.Close();
@@ -477,7 +524,7 @@ namespace yt_dlp_GUI_dotnet8
             AddUrl addURl = new();
             addURl.ShowDialog();
             var urls = addURl.urls;
-            if(urls != null)
+            if (urls != null)
             {
                 try
                 {
@@ -497,7 +544,7 @@ namespace yt_dlp_GUI_dotnet8
         private async Task UrlsCheck(string[] urls)
         {
             GetInfomation getInfomation = new GetInfomation();
-            Loading load = new Loading();
+            Loading load = new Loading(false);
             string Title = String.Empty;
             VideoData result;
             load.Show();
@@ -509,7 +556,14 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     result = await getInfomation.Infomation(url);
                     Title = result.Title;
-                    dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail) });
+                    if (result.LiveStatus == LiveStatus.IsLive)
+                    {
+                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = true });
+                    }
+                    else
+                    {
+                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = false });
+                    }
                 }
             }
             list.ItemsSource = dLLists;
@@ -559,7 +613,7 @@ namespace yt_dlp_GUI_dotnet8
             if (IsValidUrl(SearchBox_Info.Text))
             {
                 //初期化
-                Loading load = new Loading();
+                Loading load = new Loading(false);
                 GetInfomation get = new GetInfomation();
                 try
                 {
@@ -602,7 +656,7 @@ namespace yt_dlp_GUI_dotnet8
             {
                 cts.Cancel();
                 dLLists.Clear();
-                ShowNotif("Cancel", "キャンセルされたお");
+                ShowToast("Cancel", "キャンセルされたお");
                 list.ClearValue(ItemsControl.ItemsSourceProperty);
                 folder = "none";
                 count = 1;
@@ -625,7 +679,7 @@ namespace yt_dlp_GUI_dotnet8
             saveVideosInfomation.ob.Clear();
             string DownloadRecent_Path = @".\Recent\DownloadRecent.txt";
             File.Delete(DownloadRecent_Path);
-            ShowNotif("成功", "履歴を削除しました");
+            ShowToast("成功", "履歴を削除しました");
 
         }
         private void WriteSettings(string Title, string value)
@@ -691,6 +745,10 @@ namespace yt_dlp_GUI_dotnet8
             SetPixel.IsEnabled = false;
             WriteSettings("Audio_Only_Enabled", "true");
         }
+        private void Audio_Only_DropDownClosed(object sender, EventArgs e)
+        {
+            WriteSettings("Audio_Only", Convert.ToString(Only.SelectedIndex));
+        }
         private void audio_Only_Toggle_Unchecked(object sender, RoutedEventArgs e)
         {
             Only.IsEnabled = false;
@@ -754,11 +812,6 @@ namespace yt_dlp_GUI_dotnet8
             WriteSettings("container", Convert.ToString(container.SelectedIndex));
         }
 
-        private void codec_Audio_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private void listView_Recent_Selected(object sender, RoutedEventArgs e)
         {
             if (listView_Recent.SelectedItem != null)
@@ -768,18 +821,17 @@ namespace yt_dlp_GUI_dotnet8
                 try
                 {
                     Clipboard.SetData(DataFormats.Text, _u);
-                    ShowNotif("成功", "URLをクリップボードに貼り付けました");
+                    ShowToast("成功", "URLをクリップボードに貼り付けました");
 
                 }
                 catch (Exception ex)
                 {
-                    ShowNotif("失敗", "URLの取得に失敗しました");
+                    ShowToast("失敗", "URLの取得に失敗しました");
                 }
 
 
             }
             listView_Recent.SelectedItem = null;
         }
-
     }
 }

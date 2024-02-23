@@ -75,7 +75,8 @@
                 <ListView
                     Name="list"
                     Margin="0,56,0,56"
-                    IsEnabled="True">
+                    IsEnabled="True"
+                    FontSize="20">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Width="200" Header="Cover">
@@ -140,7 +141,7 @@
             <Grid Width="Auto" Height="Auto">
                 <ListView
                     x:Name="listView_Recent"
-                    Margin="10,165,10,10"
+                    Margin="10,89,175,86"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -171,10 +172,11 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <Wpf:WebView2 Source="https://toaru-web.net/tate_ad.html" Margin="0,89,10,10" HorizontalAlignment="Right" Width="160"/>
                 <Button
                     Width="106"
                     Height="74"
-                    Margin="10,86,0,0"
+                    Margin="10,10,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="Button_Click"
@@ -353,7 +355,7 @@
                                     Name="thumbPic"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Source="muhu.jpg" />
+                                    Source="party.gif" />
                             </GroupBox>
                         </Grid>
                         <GroupBox Margin="16" Header="Infomation">
@@ -573,7 +575,7 @@
                         Name="Only"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="オーディオコーディック"
-                        DropDownClosed="codec_Audio_DropDownClosed"
+                        DropDownClosed="Audio_Only_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
