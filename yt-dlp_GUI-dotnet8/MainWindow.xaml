@@ -95,6 +95,7 @@
                             </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding name}" Header="Title" />
                             <GridViewColumn DisplayMemberBinding="{Binding url}" Header="URL" />
+                            <GridViewColumn DisplayMemberBinding="{Binding filePath}" Header="FilePath" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -141,7 +142,7 @@
             <Grid Width="Auto" Height="Auto">
                 <ListView
                     x:Name="listView_Recent"
-                    Margin="10,89,175,86"
+                    Margin="10,89,190,86"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -172,10 +173,10 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Wpf:WebView2 Source="https://toaru-web.net/tate_ad.html" Margin="0,89,10,10" HorizontalAlignment="Right" Width="160"/>
+                <Wpf:WebView2 Source="https://toaru-web.net/tate_ad.html" Margin="767,10,0,10" HorizontalAlignment="Left" Width="168" Height="630"/>
                 <Button
-                    Width="106"
-                    Height="74"
+                    Width="103"
+                    Height="60"
                     Margin="10,10,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"

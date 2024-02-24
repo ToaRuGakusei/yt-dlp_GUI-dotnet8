@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -85,6 +86,7 @@ namespace yt_dlp_GUI_dotnet8
             public string name { get; set; }
             public Uri image { get; set; }
             public bool isLive { get; set; }
+            public bool YesPlayList { get; set; }
         }
         public MainWindow()
         {
@@ -270,6 +272,7 @@ namespace yt_dlp_GUI_dotnet8
                 EmbedMetadata = true, //メタデータを付加
                 EmbedThumbnail = true, //サムネイルを付加
                 IgnoreErrors = true, //エラー無視
+                YesPlaylist = true, //PlayListを明示する
                 //ListFormats = true, //フォーマットリストを表示？
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
             };
@@ -403,7 +406,7 @@ namespace yt_dlp_GUI_dotnet8
                 }
                 else
                 {
-                    if(loading != null)
+                    if (loading != null)
                     {
                         loading.Close();
                     }
@@ -440,6 +443,7 @@ namespace yt_dlp_GUI_dotnet8
             }
             folder = "none";
             count = 1;
+            this.IsEnabled = true;
             progText.Content = "Download States";
             dLLists.Clear();
             Title = title;
@@ -494,11 +498,11 @@ namespace yt_dlp_GUI_dotnet8
             string Title = result == null ? "none" : result.Title;
             if (result.LiveStatus == LiveStatus.IsLive)
             {
-                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true });
+                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = webview.CoreWebView2.Source.Contains("list") });
             }
             else
             {
-                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false });
+                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list")});
             }
             list.ItemsSource = dLLists;
             isEnd = true;
@@ -535,6 +539,7 @@ namespace yt_dlp_GUI_dotnet8
                 catch (Exception)
                 {
                     MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                    EndDownload(null, false);
                 }
             }
 
@@ -545,10 +550,10 @@ namespace yt_dlp_GUI_dotnet8
         private async Task UrlsCheck(string[] urls)
         {
             GetInfomation getInfomation = new GetInfomation();
-            Loading load = new Loading(false);
+            loading = new Loading(false);
             string Title = String.Empty;
             VideoData result;
-            load.Show();
+            loading.Show();
             Notouch();
             foreach (var url in urls)
             {
@@ -559,17 +564,18 @@ namespace yt_dlp_GUI_dotnet8
                     Title = result.Title;
                     if (result.LiveStatus == LiveStatus.IsLive)
                     {
-                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = true });
+                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = url.Contains("list") });
                     }
                     else
                     {
-                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = false });
+                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = url.Contains("list") });
                     }
+
                 }
             }
             list.ItemsSource = dLLists;
             isEnd = true;
-            load.Close();
+            loading.Close();
         }
         /// <summary>
         /// きちんとしたURLのフォーマットになっているかチェック
