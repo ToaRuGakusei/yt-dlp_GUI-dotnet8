@@ -8,9 +8,9 @@
     x:Class="yt_dlp_GUI_dotnet8.Tool.Loading"
     Title=""
     Width="450"
-    Height="300"
+    Height="400"
     MaxWidth="450"
-    MaxHeight="300"
+    MaxHeight="400"
     Background="DimGray"
     Topmost="True"
     WindowStartupLocation="CenterScreen"
@@ -29,7 +29,7 @@
         <ProgressBar
             x:Name="Bar"
             Height="30"
-            Margin="45,51,45,203"
+            Margin="45,51,45,303"
             Foreground="GreenYellow" />
         <Wpf:WebView2 Source="https://toaru-web.net/ad.html" Margin="45,86,45,10"/>
     </Grid>

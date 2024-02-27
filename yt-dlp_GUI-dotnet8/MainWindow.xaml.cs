@@ -32,6 +32,7 @@ namespace yt_dlp_GUI_dotnet8
         private bool Codec_Enabled = false;
         private bool Codec_Audio_Enabled = false;
         private bool container_Enabled = false;
+
         //設定関連の初期化
         private string Cookie = "";
         private int Pixel = 0;
@@ -80,6 +81,8 @@ namespace yt_dlp_GUI_dotnet8
 
 
         private readonly string title = "AllVideoDownloader(仮)";
+
+
         public class DLList()
         {
             public string url { get; set; }
@@ -96,7 +99,7 @@ namespace yt_dlp_GUI_dotnet8
             Settings_Apply();//設定を反映させる
 
             progress = new Progress<DownloadProgress>((p) => showProgress(p));//進捗状況を反映するための式
-            ChangeTheme();//
+            ChangeTheme();//ThemeChange
 
         }
 
@@ -496,14 +499,22 @@ namespace yt_dlp_GUI_dotnet8
             Notouch();
             var result = await getInfomation.Infomation(webview.CoreWebView2.Source);
             string Title = result == null ? "none" : result.Title;
-            if (result.LiveStatus == LiveStatus.IsLive)
+            try
             {
-                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = webview.CoreWebView2.Source.Contains("list") });
+                if (result.LiveStatus == LiveStatus.IsLive)
+                {
+                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = webview.CoreWebView2.Source.Contains("list") });
+                }
+                else
+                {
+                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list") });
+                }
             }
-            else
+            catch(Exception ex) 
             {
-                dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list")});
+                MessageBox.Show("このサイトに対応していない可能性があります\n詳しくはお問い合わせください", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            
             list.ItemsSource = dLLists;
             isEnd = true;
             load.Close();
