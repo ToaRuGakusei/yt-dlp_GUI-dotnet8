@@ -173,7 +173,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Wpf:WebView2 Source="https://toaru-web.net/tate_ad.html" Margin="767,10,0,10" HorizontalAlignment="Left" Width="168" Height="630"/>
+                <Wpf:WebView2 Source="https://toaru-web.net/tate_ad.html" Margin="0,61,10,58" Height="630" HorizontalAlignment="Right" Width="168"/>
                 <Button
                     Width="103"
                     Height="60"

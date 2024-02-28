@@ -32,6 +32,7 @@ namespace yt_dlp_GUI_dotnet8
         private bool Codec_Enabled = false;
         private bool Codec_Audio_Enabled = false;
         private bool container_Enabled = false;
+        private bool Audio_Only_Enabled = false;
 
         //設定関連の初期化
         private string Cookie = "";
@@ -135,19 +136,21 @@ namespace yt_dlp_GUI_dotnet8
             Codec_Audio_Enabled = settingsLoader.SettingEnabled_Check("codec_Audio_Enabled") == "true" ? true : false;
             container_Enabled = settingsLoader.SettingEnabled_Check("container_Enabled") == "true" ? true : false;
             Cookie = settingsLoader.SettingGetter("Cookies").Replace("\r\n", "").Replace("\"", "");
+            Audio_Only_Enabled = settingsLoader.SettingEnabled_Check("Audio_Only_Enabled") == "true" ? true : false;
             Pixel = int.Parse(settingsLoader.SettingGetter("resolution"));
             Codec = int.Parse(settingsLoader.SettingGetter("codec"));
             Codec_Audio = int.Parse(settingsLoader.SettingGetter("codec_Audio"));
             Video = int.Parse(settingsLoader.SettingGetter("resolution"));
             Merge = int.Parse(settingsLoader.SettingGetter("container"));
             Audio_Only_Value = int.Parse(settingsLoader.SettingGetter("Audio_Only"));
-
+            
             //設定反映(´・ω・`)
             cookie.IsChecked = Cookies_Enabled;
             SetPixel.IsChecked = SetPixel_Enabled;
             CodecToggle.IsChecked = Codec_Enabled;
             Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
             container_Toggle.IsChecked = container_Enabled;
+            audio_Only_Toggle.IsChecked = Audio_Only_Enabled;
             if (Codec_Audio != -9)
                 AudioConversion = AudioList[Codec_Audio];
 
@@ -180,6 +183,7 @@ namespace yt_dlp_GUI_dotnet8
             codec.SelectedIndex = Codec == -9 ? 0 : Codec;
             codec_Audio.SelectedIndex = Codec_Audio == -9 ? 0 : Codec_Audio;
             container.SelectedIndex = Merge == -9 ? 0 : Merge;
+            Only.SelectedIndex = Audio_Only_Value == -9 ? 0 : Audio_Only_Value;
             PasswordBox.Text = Cookie;
 
             SetRecent(); //履歴セット
@@ -267,7 +271,7 @@ namespace yt_dlp_GUI_dotnet8
             {
                 Format = $"{video_Value}+bestaudio/bestvideo+bestaudio", //動画のダウンロード形式を指定
                 FormatSort = $"vcodec:{videoFormat}", //コーディックを指定
-                AudioFormat = AudioConversion, //オーディオコーデックを指定
+                AudioFormat = (bool)audio_Only_Toggle.IsChecked ? AudioOnlyConversion : AudioConversion, //オーディオコーデックを指定
                 ExtractAudio = (bool)audio_Only_Toggle.IsChecked, //Audioのみになる。（なぜかきちんとコーデックが反映されている）
                 MergeOutputFormat = mergeOutputFormat, //コンテナ？を指定
                 Cookies = Cookie, //クッキーを指定
@@ -275,7 +279,7 @@ namespace yt_dlp_GUI_dotnet8
                 EmbedMetadata = true, //メタデータを付加
                 EmbedThumbnail = true, //サムネイルを付加
                 IgnoreErrors = true, //エラー無視
-                YesPlaylist = true, //PlayListを明示する
+                YesPlaylist = false, //PlayListを明示する
                 //ListFormats = true, //フォーマットリストを表示？
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
             };
@@ -839,6 +843,12 @@ namespace yt_dlp_GUI_dotnet8
                 try
                 {
                     Clipboard.SetData(DataFormats.Text, _u);
+                    ProcessStartInfo pi = new ProcessStartInfo()
+                    {
+                        FileName = _u,
+                        UseShellExecute = true,
+                    };
+                    Process.Start(pi);
                     ShowToast("成功", "URLをクリップボードに貼り付けました");
 
                 }
