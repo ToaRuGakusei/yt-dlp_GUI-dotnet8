@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "yt-dlp_GUI-dotnet8", "yt-dlp_GUI-dotnet8\yt-dlp_GUI-dotnet8.csproj", "{23202E48-D1B8-4FC8-8A09-BE6C56356167}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCheck", "UpdateCheck\UpdateCheck.csproj", "{7FD6A3F6-517B-4B03-81D1-A89C519525F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{23202E48-D1B8-4FC8-8A09-BE6C56356167}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23202E48-D1B8-4FC8-8A09-BE6C56356167}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23202E48-D1B8-4FC8-8A09-BE6C56356167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FD6A3F6-517B-4B03-81D1-A89C519525F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD6A3F6-517B-4B03-81D1-A89C519525F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD6A3F6-517B-4B03-81D1-A89C519525F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD6A3F6-517B-4B03-81D1-A89C519525F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,15 +11,20 @@ namespace yt_dlp_GUI_dotnet8.Tool
         public static string WhatName = "";
         public static long TotalBytesRead = 0;
         public static long TotalBytes = 0;
-        public async Task<MemoryStream> GetContent(string Url)
+        public async Task<MemoryStream> GetContent(string Url,string Assets)
         {
             IsEnd = false;
             return await Task.Run(async () =>
             {
+                
                 using (HttpClient client = new HttpClient())
                 {
                     string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0";
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                    if(Assets != "")
+                    {
+                        client.DefaultRequestHeaders.Add("Accept", Assets);
+                    }
                     WhatName = Path.GetFileName(Url);
                     using (HttpResponseMessage response = await client.GetAsync(new Uri(Url), HttpCompletionOption.ResponseHeadersRead))
                     {

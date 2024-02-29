@@ -10,6 +10,7 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Windows.UI.Notifications;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -33,6 +34,7 @@ namespace yt_dlp_GUI_dotnet8
         private bool Codec_Audio_Enabled = false;
         private bool container_Enabled = false;
         private bool Audio_Only_Enabled = false;
+        private Toast Toast = new Toast();
 
         //設定関連の初期化
         private string Cookie = "";
@@ -95,13 +97,13 @@ namespace yt_dlp_GUI_dotnet8
         public MainWindow()
         {
             InitializeComponent();
+            CheckUpdate checkUpdate = new();
+            checkUpdate.Check();
             InitializeAsync();//WebView2関連の設定をする
             QuestionDownloadFirst(); //ここでtoolの有無を確認（なければダウンロードするか聞く）
             Settings_Apply();//設定を反映させる
-
             progress = new Progress<DownloadProgress>((p) => showProgress(p));//進捗状況を反映するための式
             ChangeTheme();//ThemeChange
-
         }
 
         /// <summary>
@@ -219,17 +221,6 @@ namespace yt_dlp_GUI_dotnet8
                     cookieBrowser = sm.ReadToEnd(); //CookiesをStreamReaderで取得
                 }
             }
-        }
-
-        //Toast通知発火
-        public static void ShowToast(string title, string body)
-        {
-            new ToastContentBuilder()
-                        .AddText(title)
-                        .AddText(body)
-                        .SetToastDuration(ToastDuration.Short)
-                        .SetToastScenario(ToastScenario.Default)
-                        .Show();
         }
         //ここでオプションなどを設定し、DownloadVideoに値を渡す。
         private void DownloadAsync(string url)
@@ -368,23 +359,38 @@ namespace yt_dlp_GUI_dotnet8
 
         private async Task ffmpeg_Download(FileDownloader fld, DownloadNow dln)
         {
-            var ffmpeg = await fld.GetContent(ffmpeg_Download_URL);
-            ZipFile.ExtractToDirectory(ffmpeg, @".\");
+            var ffmpeg = await fld.GetContent(ffmpeg_Download_URL,"");
+            try
+            {
+                ZipFile.ExtractToDirectory(ffmpeg, @".\",true);
+            }
+            catch (Exception)
+            {
+
+            }
             ffmpeg.Close();
             dln.Close();
-            ShowToast("Download Done!", "FFMPEGのダウンロードが終わりました");
+            Toast.ShowToast("Download Done!", "FFMPEGのダウンロードが終わりました");
         }
 
         private async Task yt_dlp_Download(FileDownloader fld)
         {
-            var ytdlp = await fld.GetContent(yt_dlp_Download_URL);
-            using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
+            var ytdlp = await fld.GetContent(yt_dlp_Download_URL,"");
+            try
             {
-                //ファイルに書き込む
-                ytdlp.WriteTo(fs);
-                ytdlp.Close();
-                ShowToast("Download Done!", "YT-DLPのダウンロードが終わりました");
+                using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
+                {
+                    //ファイルに書き込む
+                    ytdlp.WriteTo(fs);
+                    ytdlp.Close();
+                    Toast.ShowToast("Download Done!", "YT-DLPのダウンロードが終わりました");
+                }
             }
+            catch (Exception)
+            {
+
+            }
+
         }
 
         private int count = 1; //ListViewのカウント
@@ -437,11 +443,11 @@ namespace yt_dlp_GUI_dotnet8
             }
             if (error)
             {
-                ShowToast("Error!", "エラーが発生しました");
+                Toast.ShowToast("Error!", "エラーが発生しました");
             }
             else
             {
-                ShowToast("All Done!", "おわったお");
+                Toast.ShowToast("All Done!", "おわったお");
             }
             list.ClearValue(ItemsControl.ItemsSourceProperty);
             if (loading != null)
@@ -678,7 +684,7 @@ namespace yt_dlp_GUI_dotnet8
             {
                 cts.Cancel();
                 dLLists.Clear();
-                ShowToast("Cancel", "キャンセルされたお");
+                Toast.ShowToast("Cancel", "キャンセルされたお");
                 list.ClearValue(ItemsControl.ItemsSourceProperty);
                 folder = "none";
                 count = 1;
@@ -701,7 +707,7 @@ namespace yt_dlp_GUI_dotnet8
             saveVideosInfomation.ob.Clear();
             string DownloadRecent_Path = @".\Recent\DownloadRecent.txt";
             File.Delete(DownloadRecent_Path);
-            ShowToast("成功", "履歴を削除しました");
+            Toast.ShowToast("成功", "履歴を削除しました");
 
         }
         private void WriteSettings(string Title, string value)
@@ -849,12 +855,12 @@ namespace yt_dlp_GUI_dotnet8
                         UseShellExecute = true,
                     };
                     Process.Start(pi);
-                    ShowToast("成功", "URLをクリップボードに貼り付けました");
+                    Toast.ShowToast("成功", "URLをクリップボードに貼り付けました");
 
                 }
                 catch (Exception ex)
                 {
-                    ShowToast("失敗", "URLの取得に失敗しました");
+                    Toast.ShowToast("失敗", "URLの取得に失敗しました");
                 }
 
 
