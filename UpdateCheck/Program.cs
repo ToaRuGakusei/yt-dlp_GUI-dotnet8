@@ -46,7 +46,10 @@ namespace UpdateCheck
 
             foreach (FileInfo file in files)
             {
-                file.MoveTo($@".\{Path.GetFileName(file.FullName)}");
+                if(!file.Name.Contains("UpdateCheck"))
+                {
+                    file.MoveTo($@".\{Path.GetFileName(file.FullName)}");
+                }
             }
             Directory.Delete(latest + @"net8.0-windows10.0.17763.0");
 

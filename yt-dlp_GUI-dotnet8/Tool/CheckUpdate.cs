@@ -57,7 +57,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
             ZipFile.ExtractToDirectory(latest, @".\");
             latest.Close();
             dln.Close();
-            Toast.ShowToast("Download Done!", "latestのダウンロードが終わりました\nアプリを再起動します。");
+            Toast.ShowToast("Download Done!", "アップデートのダウンロードが終わりました\nアプリを再起動します。");
             ProcessStartInfo pi = new ProcessStartInfo()
             {
                 FileName = @".\UpdateCheck.exe",
