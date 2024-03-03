@@ -55,7 +55,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
         private async Task latest_Download(FileDownloader fld, DownloadNow dln)
         {
             var latest = await fld.GetContent(ReleaseUrl, "application/octet-stream");
-            ZipFile.ExtractToDirectory(latest, @".\");
+            ZipFile.ExtractToDirectory(latest, @".\update");
             latest.Close();
             dln.Close();
             Toast.ShowToast("Download Done!", "アップデートのダウンロードが終わりました\nアプリを再起動します。");

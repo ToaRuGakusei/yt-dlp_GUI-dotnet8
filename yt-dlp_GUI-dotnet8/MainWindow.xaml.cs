@@ -98,7 +98,7 @@ namespace yt_dlp_GUI_dotnet8
         {
             InitializeComponent();
             CheckUpdate checkUpdate = new();
-            checkUpdate.Check();
+            _ = checkUpdate.Check();
             InitializeAsync();//WebView2関連の設定をする
             QuestionDownloadFirst(); //ここでtoolの有無を確認（なければダウンロードするか聞く）
             Settings_Apply();//設定を反映させる

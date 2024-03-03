@@ -10,10 +10,10 @@ namespace UpdateCheck
             {
                 if (args[0] == "App") //アプリ経由の起動ではない場合、起動させない。
                 {
-                    string latest = @".\net8.0-windows10.0.17763.0"; //ディレクトリ
+                    string latest = @".\update\net8.0-windows10.0.17763.0"; //ディレクトリ
                     if (Directory.Exists(latest))
                     {
-                        Delete(@".\");
+                        Moveto(@".\");
                     }
                 }
             }
@@ -39,10 +39,10 @@ namespace UpdateCheck
         }
         private static void Moveto(string latest)
         {
-            DirectoryInfo di = new DirectoryInfo(latest + @"net8.0-windows10.0.17763.0");
+            DirectoryInfo di = new DirectoryInfo(latest + @"update\net8.0-windows10.0.17763.0");
             FileInfo[] files = di.GetFiles();
             Directory.Delete(@".\runtimes", true);
-            Directory.Move(latest + @"net8.0-windows10.0.17763.0\runtimes", @".\runtimes");
+            Directory.Move(latest + @"update\net8.0-windows10.0.17763.0\runtimes", @".\runtimes");
 
             foreach (FileInfo file in files)
             {
@@ -51,7 +51,7 @@ namespace UpdateCheck
                     File.Copy(file.FullName, $@".\{Path.GetFileName(file.FullName)}", true);
                 }
             }
-            Directory.Delete(latest + @"net8.0-windows10.0.17763.0",true);
+            Directory.Delete(latest + @"update",true);
 
             //完了後
             Console.WriteLine("更新が完了しました。\nアプリの再起動を開始します。");
