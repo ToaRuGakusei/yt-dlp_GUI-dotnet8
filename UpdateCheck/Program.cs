@@ -48,10 +48,10 @@ namespace UpdateCheck
             {
                 if(!file.Name.Contains("UpdateCheck"))
                 {
-                    file.MoveTo($@".\{Path.GetFileName(file.FullName)}");
+                    File.Copy(file.FullName, $@".\{Path.GetFileName(file.FullName)}", true);
                 }
             }
-            Directory.Delete(latest + @"net8.0-windows10.0.17763.0");
+            Directory.Delete(latest + @"net8.0-windows10.0.17763.0",true);
 
             //完了後
             Console.WriteLine("更新が完了しました。\nアプリの再起動を開始します。");
