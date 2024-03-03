@@ -21,10 +21,11 @@ namespace yt_dlp_GUI_dotnet8.Tool
             {
                 var latestRelease = releases[0];
                 var latestVersion = latestRelease.CreatedAt;
+                
                 Console.WriteLine($"最新のリリース: {latestRelease.TagName}");
-                if (latestVersion.DateTime > File.GetCreationTime(@".\yt-dlp_GUI-dotnet8.exe"))
+                if (latestVersion.DateTime.AddHours(9) > Convert.ToDateTime("2024/03/03 17:18:10"))
                 {
-                    var update = MessageBox.Show($"新しいバージョン({latestVersion})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var update = MessageBox.Show($"新しいバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (update != MessageBoxResult.Yes)
                     {
                         return;
