@@ -8,66 +8,16 @@ namespace yt_dlp_GUI_dotnet8.Tool
 {
     public class CheckUpdate
     {
-        private const string owner = "ToaRuGakusei"; // GitHub リポジトリの所有者名
-        private const string repository = "yt-dlp_GUI-dotnet8"; // GitHub リポジトリ名
-        public string ReleaseUrl = "";
-        public bool isEnd = false;
-
-        public async Task Check()
+        public bool IsFoundUpdate(string AppName)
         {
-            var github = new GitHubClient(new ProductHeaderValue("yt-dlp-GUI-dotnet8"));
-            var releases = await github.Repository.Release.GetAll(owner, repository);
-            if (releases.Any())
-            {
-                var latestRelease = releases[0];
-                var latestVersion = latestRelease.CreatedAt;
-                
-                Console.WriteLine($"最新のリリース: {latestRelease.TagName}");
-                if (latestVersion.DateTime.AddHours(9) > Convert.ToDateTime("2024/03/03 16:18:10"))
-                {
-                    var update = MessageBox.Show($"新しいバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (update != MessageBoxResult.Yes)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        ReleaseUrl = latestRelease.Assets.FirstOrDefault().Url;
-                        Debug.WriteLine($"Url: {ReleaseUrl}");
-                        FileDownloader fileDownloader = new FileDownloader();
-                        DownloadNow dln = new DownloadNow();
-                        dln.Show();
-                        await latest_Download(fileDownloader, dln);
-                        isEnd = true;
-                        //通知する
-                    }
-                }
-                // ここで最新のバージョンと比較して、必要に応じて通知およびダウンロードを行うロジックを追加できます
-                // 例えば、既存のバージョンと最新のバージョンを比較して、新しいバージョンが利用可能であれば通知するなど
-                // または、ダウンロードリンクを提供するためのURLを生成するなどの処理もここで行います
-            }
-            else
-            {
-                Console.WriteLine("リリースが見つかりません。");
-            }
-
+            return true;
         }
-        private async Task latest_Download(FileDownloader fld, DownloadNow dln)
+
+        public void Update()
         {
-            var latest = await fld.GetContent(ReleaseUrl, "application/octet-stream");
-            ZipFile.ExtractToDirectory(latest, @".\update");
-            latest.Close();
-            dln.Close();
-            Toast.ShowToast("Download Done!", "アップデートのダウンロードが終わりました\nアプリを再起動します。");
-            ProcessStartInfo pi = new ProcessStartInfo()
-            {
-                FileName = @".\UpdateCheck.exe",
-                Arguments = "App" ,
-                UseShellExecute = true,
-            };
-            Process.Start(pi);
-            Environment.Exit(0);
+
         }
     }
+       
 }
 

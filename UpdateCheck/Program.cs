@@ -19,7 +19,8 @@ namespace UpdateCheck
             }
             catch (Exception)
             {
-
+                Console.WriteLine("不正な起動を確認\n何かキーを押してください...");
+                Console.ReadKey();
             }
 
 

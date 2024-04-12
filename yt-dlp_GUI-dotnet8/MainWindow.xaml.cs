@@ -1,16 +1,13 @@
 using MaterialDesignThemes.Wpf;
-using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Windows.UI.Notifications;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -55,7 +52,7 @@ namespace yt_dlp_GUI_dotnet8
         private ObservableCollection<DLList> dLLists = new ObservableCollection<DLList>();
         private readonly string yt_dlp_Path = @".\yt-dlp.exe";
         private readonly string ffmpeg_Path = @".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe";
-        private string yt_dlp_Download_URL = "https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp.exe";
+        private string yt_dlp_Download_URL = "https://github.com/yt-dlp/yt-dlp/releases/download/2024.03.10/yt-dlp.exe";
         private string ffmpeg_Download_URL = "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip";
         private AudioConversionFormat AudioConversion;
         private AudioConversionFormat AudioOnlyConversion;
@@ -82,9 +79,7 @@ namespace yt_dlp_GUI_dotnet8
           AudioConversionFormat.Flac
         };
 
-
         private readonly string title = "AllVideoDownloader(仮)";
-
 
         public class DLList()
         {
@@ -98,7 +93,7 @@ namespace yt_dlp_GUI_dotnet8
         {
             InitializeComponent();
             CheckUpdate checkUpdate = new();
-            _ = checkUpdate.Check();
+            //_ = checkUpdate.Check("ToaRuGakusei", "yt-dlp_GUI-dotnet8");
             InitializeAsync();//WebView2関連の設定をする
             QuestionDownloadFirst(); //ここでtoolの有無を確認（なければダウンロードするか聞く）
             Settings_Apply();//設定を反映させる
@@ -145,7 +140,7 @@ namespace yt_dlp_GUI_dotnet8
             Video = int.Parse(settingsLoader.SettingGetter("resolution"));
             Merge = int.Parse(settingsLoader.SettingGetter("container"));
             Audio_Only_Value = int.Parse(settingsLoader.SettingGetter("Audio_Only"));
-            
+
             //設定反映(´・ω・`)
             cookie.IsChecked = Cookies_Enabled;
             SetPixel.IsChecked = SetPixel_Enabled;
@@ -155,15 +150,23 @@ namespace yt_dlp_GUI_dotnet8
             audio_Only_Toggle.IsChecked = Audio_Only_Enabled;
             if (Codec_Audio != -9)
                 AudioConversion = AudioList[Codec_Audio];
+            else
+                AudioConversion = AudioList[0];
 
             if (Audio_Only_Value != -9)
                 AudioOnlyConversion = AudioList[Audio_Only_Value];
+            else
+                AudioOnlyConversion = AudioList[0];
 
             if (Codec != -9)
                 videoFormat = Codec_List[Codec];
+            else
+                videoFormat = Codec_List[0];
 
             if (Video != -9)
                 video_Value = video[Video];
+            else
+                video_Value = video[0];
 
             if (Cookie == "-9")
             {
@@ -179,6 +182,10 @@ namespace yt_dlp_GUI_dotnet8
             {
                 mergeOutputFormat = mergeList[Merge];
             }
+            else
+            {
+                mergeOutputFormat = mergeList[0];
+            }
 
             //-9は取得できなかったということで、何も表示させないために0を代入させる。それ以外の場合はそのまま代入。
             combo.SelectedIndex = Pixel == -9 ? 0 : Pixel;
@@ -186,6 +193,7 @@ namespace yt_dlp_GUI_dotnet8
             codec_Audio.SelectedIndex = Codec_Audio == -9 ? 0 : Codec_Audio;
             container.SelectedIndex = Merge == -9 ? 0 : Merge;
             Only.SelectedIndex = Audio_Only_Value == -9 ? 0 : Audio_Only_Value;
+            WriteSettings("Audio_Only", Convert.ToString(Only.SelectedIndex));
             PasswordBox.Text = Cookie;
 
             SetRecent(); //履歴セット
@@ -270,7 +278,7 @@ namespace yt_dlp_GUI_dotnet8
                 EmbedMetadata = true, //メタデータを付加
                 EmbedThumbnail = true, //サムネイルを付加
                 IgnoreErrors = true, //エラー無視
-                YesPlaylist = false, //PlayListを明示する
+                YesPlaylist = (dLLists[0] as DLList).YesPlayList, //PlayListかどうかを明示する
                 //ListFormats = true, //フォーマットリストを表示？
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
             };
@@ -312,6 +320,7 @@ namespace yt_dlp_GUI_dotnet8
         /// </summary>
         private async void QuestionDownloadFirst()
         {
+            CheckUpdate checkUpdate = new();
             if (!System.IO.File.Exists(@".\yt-dlp.exe") || !System.IO.File.Exists(@".\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"))
             {
                 var result = MessageBox.Show("yt-dlpまたはffmpegが見つかりませんでした。\nダウンロードしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
@@ -332,6 +341,18 @@ namespace yt_dlp_GUI_dotnet8
                     await DownloadTool();//toolのダウンロード開始
                 }
             }
+            else if (true)
+            {
+                var result = MessageBox.Show("yt-dlpのアップデートが見つかりました。アップデートしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Cancel)
+                {
+                }
+                else
+                {
+                    await DownloadTool();//toolのダウンロード開始
+                }
+            }
+
         }
         /// <summary>
         /// ここで必要なツールをダウンロード
@@ -359,10 +380,10 @@ namespace yt_dlp_GUI_dotnet8
 
         private async Task ffmpeg_Download(FileDownloader fld, DownloadNow dln)
         {
-            var ffmpeg = await fld.GetContent(ffmpeg_Download_URL,"");
+            var ffmpeg = await fld.GetContent(ffmpeg_Download_URL, "");
             try
             {
-                ZipFile.ExtractToDirectory(ffmpeg, @".\",true);
+                ZipFile.ExtractToDirectory(ffmpeg, @".\", true);
             }
             catch (Exception)
             {
@@ -375,7 +396,7 @@ namespace yt_dlp_GUI_dotnet8
 
         private async Task yt_dlp_Download(FileDownloader fld)
         {
-            var ytdlp = await fld.GetContent(yt_dlp_Download_URL,"");
+            var ytdlp = await fld.GetContent(yt_dlp_Download_URL, "");
             try
             {
                 using (FileStream fs = new FileStream(@".\yt-dlp.exe", FileMode.Create))
@@ -383,7 +404,7 @@ namespace yt_dlp_GUI_dotnet8
                     //ファイルに書き込む
                     ytdlp.WriteTo(fs);
                     ytdlp.Close();
-                    Toast.ShowToast("Download Done!", "YT-DLPのダウンロードが終わりました");
+                    Toast.ShowToast("Download Done!", "YT-DLPのダウンロードが終わりました", "https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/.github/banner.svg");
                 }
             }
             catch (Exception)
@@ -400,7 +421,7 @@ namespace yt_dlp_GUI_dotnet8
             int a = (int)(p.Progress * 100);
             Title = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             progText.Content = p.State;
-
+            Debug.WriteLine(p.State);
             if (p.State.ToString() == "Success")
             {
                 saveVideosInfomation sv = new saveVideosInfomation();
@@ -417,7 +438,7 @@ namespace yt_dlp_GUI_dotnet8
                     }
                     DownloadAsync(b);
                 }
-                else
+                else if (!(dLLists[0] as DLList).YesPlayList)
                 {
                     if (loading != null)
                     {
@@ -432,6 +453,7 @@ namespace yt_dlp_GUI_dotnet8
                 EndDownload(null, true);
                 Debug.WriteLine(p.State.ToString());
             }
+
         }
 
         private void EndDownload(saveVideosInfomation sv, bool error)
@@ -441,6 +463,7 @@ namespace yt_dlp_GUI_dotnet8
                 sv.SaveInfo(((DLList)list.Items[count - 1]).url);
                 listView_Recent.ItemsSource = saveVideosInfomation.ob;
             }
+
             if (error)
             {
                 Toast.ShowToast("Error!", "エラーが発生しました");
@@ -449,11 +472,14 @@ namespace yt_dlp_GUI_dotnet8
             {
                 Toast.ShowToast("All Done!", "おわったお");
             }
+
             list.ClearValue(ItemsControl.ItemsSourceProperty);
+
             if (loading != null)
             {
                 loading.Close();
             }
+
             folder = "none";
             count = 1;
             this.IsEnabled = true;
@@ -520,11 +546,11 @@ namespace yt_dlp_GUI_dotnet8
                     dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list") });
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show("このサイトに対応していない可能性があります\n詳しくはお問い合わせください", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
+
             list.ItemsSource = dLLists;
             isEnd = true;
             load.Close();
@@ -610,7 +636,7 @@ namespace yt_dlp_GUI_dotnet8
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
-            if (System.IO.File.Exists(Cookies_Path))
+            /*if (System.IO.File.Exists(Cookies_Path))
             {
                 using (StreamReader sm = new StreamReader(Cookies_Path))
                 {
@@ -634,7 +660,8 @@ namespace yt_dlp_GUI_dotnet8
                 string ExtractUrl = ((DLList)list.Items[0]).url;
                 Debug.WriteLine(ExtractUrl);
                 DownloadAsync(ExtractUrl);
-            }
+            }*/
+            Toast.ShowToast("All Done!", "おわったお", "https://www.videohelp.com/softwareimages/thumb_yt_dlp_1829.jpg");
         }
         private async void Info_Search(object sender, RoutedEventArgs e)
         {

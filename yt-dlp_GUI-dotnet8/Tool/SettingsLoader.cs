@@ -16,7 +16,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
             }
             else
             {
-                return "-9";
+                return "0";
             }
 
         }

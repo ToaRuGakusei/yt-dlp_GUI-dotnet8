@@ -16,7 +16,8 @@
     Topmost="True"
     Unloaded="Window_Unloaded"
     WindowStartupLocation="CenterScreen"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    SourceInitialized="Window_SourceInitialized">
     <Grid>
         <Label
             Name="downloadLabel"
