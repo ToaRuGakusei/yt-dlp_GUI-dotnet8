@@ -81,14 +81,15 @@
                             <GridViewColumn Width="200" Header="Cover">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
+                                        <Grid>
                                             <Image
                                                 Width="200"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 RenderOptions.BitmapScalingMode="HighQuality"
                                                 Source="{Binding image}" />
-                                        </StackPanel>
+                                            <ProgressBar Height="15" Margin="0,140,0,0"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
