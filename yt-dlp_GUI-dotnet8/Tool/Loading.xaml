@@ -1,21 +1,23 @@
 ﻿<Window
+    x:Class="yt_dlp_GUI_dotnet8.Tool.Loading"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:yt_dlp_GUI_dotnet8.Tool"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    x:Class="yt_dlp_GUI_dotnet8.Tool.Loading"
     Title=""
     Width="450"
     Height="400"
     MaxWidth="450"
     MaxHeight="400"
+    AllowsTransparency="True"
     Background="DimGray"
-    Topmost="True"
+    SourceInitialized="Window_SourceInitialized"
+    Topmost="False"
     WindowStartupLocation="CenterScreen"
-    mc:Ignorable="d"
-    SourceInitialized="Window_SourceInitialized">
+    WindowStyle="None"
+    mc:Ignorable="d">
     <Grid>
         <Label
             x:Name="downloadRead"
@@ -31,6 +33,6 @@
             Height="30"
             Margin="45,51,45,303"
             Foreground="GreenYellow" />
-        <Wpf:WebView2 Source="https://toaru-web.net/ad.html" Margin="45,86,45,10"/>
+        <Wpf:WebView2 Margin="45,100,45,10" Source="https://google.com" />
     </Grid>
 </Window>

@@ -13,7 +13,7 @@
     MaxHeight="200"
     Background="DimGray"
     Loaded="Window_Loaded"
-    Topmost="True"
+    Topmost="false"
     Unloaded="Window_Unloaded"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d"
