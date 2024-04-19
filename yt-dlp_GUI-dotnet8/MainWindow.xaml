@@ -7,11 +7,13 @@
     xmlns:local="clr-namespace:yt_dlp_GUI_dotnet8"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
     Title="AllVideoDownloader(仮）"
     Width="650"
     Background="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"
     Closing="Window_Closing"
     mc:Ignorable="d">
+    <Window.Resources />
     <TabControl
         materialDesign:ColorZoneAssist.Mode="Standard"
         materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
@@ -75,7 +77,34 @@
                     Name="list"
                     Margin="0,56,0,56"
                     FontSize="20"
-                    IsEnabled="True">
+                    IsEnabled="True"
+                    Style="{DynamicResource DownloadListView}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="詳細設定" />
+                                    </ContextMenu>
+                                </Setter.Value>
+
+                            </Setter>
+                            <!--  選択時の背景色  -->
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Width="200" Header="Cover">
@@ -413,6 +442,24 @@
                 </Grid>
                 <Grid Height="56">
                     <Label
+                        Width="442"
+                        Margin="34,16,0,12"
+                        HorizontalAlignment="Left"
+                        Content="常に高品質動画をダウンロードする（デフォルトではオン）" />
+                    <ToggleButton
+                        x:Name="Setdefault"
+                        Width="34"
+                        Margin="0,2,0,-2"
+                        HorizontalAlignment="Left"
+                        Checked="Setdefault_Checked"
+                        IsChecked="True"
+                        RenderTransformOrigin="0.5,0.5"
+                        Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                        ToolTip="MaterialDesignSwitchLightToggleButton"
+                        Unchecked="Setdefault_Unchecked" />
+                </Grid>
+                <Grid Height="56">
+                    <Label
                         Width="151"
                         Margin="34,16,0,12"
                         HorizontalAlignment="Left"
@@ -500,7 +547,7 @@
                         materialDesign:HintAssist.Hint="コーディック"
                         DropDownClosed="codec_DropDownClosed"
                         IsEnabled="False">
-                        <ComboBoxItem Content="H264" />
+                        <ComboBoxItem Content="H264（おすすめ）" />
                         <ComboBoxItem Content="H265" />
                         <ComboBoxItem Content="VP9" />
                         <ComboBoxItem Content="AV1" />
