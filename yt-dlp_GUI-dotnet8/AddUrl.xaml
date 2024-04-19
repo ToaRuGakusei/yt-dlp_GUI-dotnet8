@@ -30,16 +30,15 @@
                     <TextBox
                     Name="Box"
                     materialDesign:HintAssist.Hint="ここにURLを貼ってね"
-                    AcceptsReturn="True"
-                    ScrollViewer.CanContentScroll="True"
-                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                    AcceptsReturn="True"                   
+                    ScrollViewer.CanContentScroll="True" Height="308" VerticalAlignment="Top" />
                 </GroupBox>
                 <Button
                 Name="Add"
-                Margin="353,386,353,-48"
+                Margin="308,386,398,-48"
                 Click="Add_Click"
                 Content="追加" />
+                <Button Content="閉じる" Click="Close_Clicked" Width="92" Margin="403,386,301,-48"/>
             </Grid>
         </StackPanel>
     </Border>

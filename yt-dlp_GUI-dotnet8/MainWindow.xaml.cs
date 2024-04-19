@@ -352,14 +352,14 @@ namespace yt_dlp_GUI_dotnet8
             }
             else if (true)
             {
-                var result = MessageBox.Show("yt-dlpのアップデートが見つかりました。アップデートしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Cancel)
+                //var result = MessageBox.Show("yt-dlpのアップデートが見つかりました。アップデートしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                /*if (result == MessageBoxResult.Cancel)
                 {
                 }
                 else
                 {
                     await DownloadTool();//toolのダウンロード開始
-                }
+                }*/
             }
 
         }
@@ -496,6 +496,8 @@ namespace yt_dlp_GUI_dotnet8
             dLLists.Clear();
             Title = title;
             Go.IsEnabled = true;
+            Clear.IsEnabled = true;
+            AddUrlList.IsEnabled = true;
         }
 
         private void NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
@@ -599,9 +601,6 @@ namespace yt_dlp_GUI_dotnet8
                     EndDownload(null, false);
                 }
             }
-
-
-
         }
 
         private async Task UrlsCheck(string[] urls)
@@ -620,6 +619,17 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     result = await getInfomation.Infomation(url);
                     Title = result.Title;
+                    var CodecList = await getInfomation.CodecInfomation(url);
+                    foreach(var codec in CodecList)
+                    {
+                        if (codec != null)
+                        {
+                            Debug.Write("ビデオフォーマット＝" + codec.VideoFormats[0]+"\n");
+                            Debug.Write("フォーマットID＝" + codec.VideoFormatID+"\n");
+                            Debug.Write("オーディオフォーマット" + codec.AudioFormats[0]+"\n");
+                            Debug.Write("ID＝" + codec.AudioFormatID+"\n");
+                        }
+                    }
                     if (result.LiveStatus == LiveStatus.IsLive)
                     {
                         dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = url.Contains("list") });
@@ -748,6 +758,7 @@ namespace yt_dlp_GUI_dotnet8
                 e.Cancel = true;
                 return;
             }
+            Environment.Exit(0);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -922,6 +933,16 @@ namespace yt_dlp_GUI_dotnet8
             string DownloadRecent_Path = @".\Recent\DownloadRecent.txt";
             File.Delete(DownloadRecent_Path);
             Toast.ShowToast("成功", "履歴を削除しました");
+        }
+
+        private void Setdefault_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Setdefault_Unchecked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
