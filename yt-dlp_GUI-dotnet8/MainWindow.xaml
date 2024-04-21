@@ -391,8 +391,7 @@
                                 <Image
                                     Name="thumbPic"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Source="party.gif" />
+                                    VerticalAlignment="Center" />
                             </GroupBox>
                         </Grid>
                         <GroupBox Margin="16" Header="Infomation">
