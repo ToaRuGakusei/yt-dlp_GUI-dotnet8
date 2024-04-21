@@ -87,7 +87,7 @@ namespace yt_dlp_GUI_dotnet8
             public Uri image { get; set; }
             public bool isLive { get; set; }
             public bool YesPlayList { get; set; }
-            public int value {  get; set; }
+            public int value { get; set; }
         }
         public MainWindow()
         {
@@ -123,81 +123,109 @@ namespace yt_dlp_GUI_dotnet8
         {
             //設定ファイルへのアクセスを制限
             UseSettingsFile = true;
-            if(!File.Exists(@".\Settings.json"))
+            if (!File.Exists(@".\Settings.json"))
             {
                 StreamWriter sw = new StreamWriter(@".\Settings.json");
                 sw.WriteLine(" ");
                 sw.Close();
-            }else
+            }
+            else
             {
                 //設定ロード＾＾
                 //ごり押ししすぎ
                 SetJson setJson = new SetJson();
-                try
+
+                var Load = setJson.readJson();
+                SettingsLoader settingsLoader = new SettingsLoader();
+                Cookies_Enabled = Load.CookiesIsEnable;
+                SetPixel_Enabled = Load.PixelIsEnable;
+                Codec_Enabled = Load.CodecIsEnable;
+                Codec_Audio_Enabled = Load.AudioCodecIsEnable;
+                container_Enabled = Load.ExtensionIsEnable;
+                if (Load.Cookies != null)
                 {
-                    var Load = setJson.readJson();
-                    SettingsLoader settingsLoader = new SettingsLoader();
-                    Cookies_Enabled = Load.CookiesIsEnable;
-                    SetPixel_Enabled = Load.PixelIsEnable;
-                    Codec_Enabled = Load.CodecIsEnable;
-                    Codec_Audio_Enabled = Load.AudioCodecIsEnable;
-                    container_Enabled = Load.ExtensionIsEnable;
-                    if (Load.Cookies != null)
-                    {
-                        Cookie = Load.Cookies.Replace("\r\n", "").Replace("\"", "");
-                    }
-                    Audio_Only_Enabled = Load.AudioOnlyIsEnable;
-                    Pixel = Load.Pixel;
-                    Codec = Load.Codec;
-                    Codec_Audio = Load.AudioCodec;
-                    Merge = Load.Extension;
-                    Audio_Only_Value = Load.AudioOnly;
+                    Cookie = Load.Cookies.Replace("\r\n", "").Replace("\"", "");
+                }
+                Audio_Only_Enabled = Load.AudioOnlyIsEnable;
+                Pixel = Load.Pixel;
+                Codec = Load.Codec;
+                Codec_Audio = Load.AudioCodec;
+                Merge = Load.Extension;
+                Audio_Only_Value = Load.AudioOnly;
 
-                    //設定反映(´・ω・`)
-                    cookie.IsChecked = Cookies_Enabled;
-                    SetPixel.IsChecked = SetPixel_Enabled;
-                    CodecToggle.IsChecked = Codec_Enabled;
-                    Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
-                    container_Toggle.IsChecked = container_Enabled;
-                    audio_Only_Toggle.IsChecked = Audio_Only_Enabled;
-                    if (Codec_Audio != -9)
-                        AudioConversion = AudioList[Codec_Audio];
-                    else
-                        AudioConversion = AudioList[0];
+                //設定反映(´・ω・`)
+                cookie.IsChecked = Cookies_Enabled;
+                SetPixel.IsChecked = SetPixel_Enabled;
+                CodecToggle.IsChecked = Codec_Enabled;
+                Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
+                container_Toggle.IsChecked = container_Enabled;
+                audio_Only_Toggle.IsChecked = Audio_Only_Enabled;
+                if (Codec_Audio != -1)
+                    AudioConversion = AudioList[Codec_Audio];
+                else
+                    AudioConversion = AudioList[0];
 
-                    if (Audio_Only_Value != -9)
-                        AudioOnlyConversion = AudioList[Audio_Only_Value];
-                    else
-                        AudioOnlyConversion = AudioList[0];
+                if (Audio_Only_Value != -1)
+                    AudioOnlyConversion = AudioList[Audio_Only_Value];
+                else
+                    AudioOnlyConversion = AudioList[0];
 
-                    if (Codec != -9)
-                        videoFormat = Codec_List[Codec];
-                    else
-                        videoFormat = Codec_List[0];
+                if (Codec != -9)
+                    videoFormat = Codec_List[Codec];
+                else
+                    videoFormat = Codec_List[0];
 
-                    if (Merge != -9)
-                    {
-                        mergeOutputFormat = mergeList[Merge];
-                    }
-                    else
-                    {
-                        mergeOutputFormat = mergeList[0];
-                    }
+                if (Merge != -9)
+                {
+                    mergeOutputFormat = mergeList[Merge];
+                }
+                else
+                {
+                    mergeOutputFormat = mergeList[0];
+                }
+                if (!(Pixel == -1))
+                {
                     video_Value = video[Pixel];
-                    //-9は取得できなかったということで、何も表示させないために0を代入させる。それ以外の場合はそのまま代入。
                     combo.SelectedIndex = Pixel;
-                    codec.SelectedIndex = Codec;
-                    codec_Audio.SelectedIndex = Codec_Audio;
-                    container.SelectedIndex = Merge;
-                    Only.SelectedIndex = Audio_Only_Value;
-                    PasswordBox.Text = Cookie;
-                }
-                catch (Exception)
+                }else
                 {
-
+                    video_Value = video[0];
+                    combo.SelectedIndex = 0;
                 }
+                if (!(Codec == -1))
+                {
+                    codec.SelectedIndex = Codec;
+                }else
+                {
+                    codec.SelectedIndex = 0;
+                }
+                if (!(Codec_Audio == -1))
+                {
+                    codec_Audio.SelectedIndex = Codec_Audio;
+                }else
+                {
+                    codec_Audio.SelectedIndex = 0;
+                }
+                if (!(Merge == -1))
+                {
+                    container.SelectedIndex = Merge;
+                }else
+                {
+                    container.SelectedIndex = 0;
+                }
+
+                if (!(Audio_Only_Value == -1))
+                {
+                    Only.SelectedIndex = Audio_Only_Value;
+                }else
+                {
+                    Only.SelectedIndex = 0;
+                }
+                PasswordBox.Text = Cookie;
+
+
             }
-            
+
 
 
             SetRecent(); //履歴セット
@@ -287,7 +315,7 @@ namespace yt_dlp_GUI_dotnet8
                 IgnoreErrors = true, //エラー無視
                 YesPlaylist = (dLLists[0] as DLList).YesPlayList, //PlayListかどうかを明示する
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
-         
+
             };
             run = Task.Run(() =>
             {
@@ -436,28 +464,29 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     Next(sv);
                 }
-                else if((dLLists[0] as DLList).YesPlayList)
+                else if ((dLLists[0] as DLList).YesPlayList)
                 {
                     await Task.Delay(1000);
                     Process[] processes = Process.GetProcessesByName("yt-dlp");
-                    if(processes.Length == 0)
+                    if (processes.Length == 0)
                     {
                         Debug.WriteLine("Not runnning");
                         DownloadIsEnd = true;
 
-                    }else
+                    }
+                    else
                     {
                         Debug.WriteLine("Running");
                         DownloadIsEnd = false;
                     }
-                    if(DownloadIsEnd)
+                    if (DownloadIsEnd)
                     {
                         DownloadIsEnd = false;
                         EndDownload(sv, false);
                     }
                     Debug.WriteLine(run.Status);
                 }
-                else 
+                else
                 {
                     if (loading != null)
                     {
@@ -575,11 +604,11 @@ namespace yt_dlp_GUI_dotnet8
             {
                 if (result.LiveStatus == LiveStatus.IsLive)
                 {
-                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = webview.CoreWebView2.Source.Contains("list") ,value=12});
+                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = true, YesPlayList = webview.CoreWebView2.Source.Contains("list"), value = 12 });
                 }
                 else
                 {
-                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list"),value=90 });
+                    dLLists.Add(new DLList { url = webview.CoreWebView2.Source, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = webview.CoreWebView2.Source.Contains("list"), value = 90 });
                 }
             }
             catch (Exception ex)
@@ -645,14 +674,14 @@ namespace yt_dlp_GUI_dotnet8
                     result = await getInfomation.Infomation(url);
                     Title = result.Title;
                     var CodecList = await getInfomation.CodecInfomation(result);
-                    foreach(var codec in CodecList)
+                    foreach (var codec in CodecList)
                     {
                         if (codec != null)
                         {
-                            Debug.Write("ビデオフォーマット＝" + codec.VideoFormats[0]+"\n");
-                            Debug.Write("フォーマットID＝" + codec.VideoFormatID+"\n");
-                            Debug.Write("オーディオフォーマット" + codec.AudioFormats[0]+"\n");
-                            Debug.Write("ID＝" + codec.AudioFormatID+"\n");
+                            Debug.Write("ビデオフォーマット＝" + codec.VideoFormats[0] + "\n");
+                            Debug.Write("フォーマットID＝" + codec.VideoFormatID + "\n");
+                            Debug.Write("オーディオフォーマット" + codec.AudioFormats[0] + "\n");
+                            Debug.Write("ID＝" + codec.AudioFormatID + "\n");
                         }
                     }
                     if (result.LiveStatus == LiveStatus.IsLive)
@@ -661,7 +690,7 @@ namespace yt_dlp_GUI_dotnet8
                     }
                     else
                     {
-                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = url.Contains("list") ,value=a});
+                        dLLists.Add(new DLList { url = url, name = Title, image = new Uri(result.Thumbnail), isLive = false, YesPlayList = url.Contains("list"), value = a });
                     }
 
                 }
@@ -817,7 +846,8 @@ namespace yt_dlp_GUI_dotnet8
                 downloadSetting.HighQualityVideoIsEnable = (bool)Setdefault.IsChecked;
                 downloadSetting.Pixel = combo.SelectedIndex;
                 downloadSetting.PixelIsEnable = (bool)SetPixel.IsChecked;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
 
             }
@@ -891,7 +921,7 @@ namespace yt_dlp_GUI_dotnet8
             SetPixel.IsEnabled = true;
         }
 
-        
+
         private void Codec_Audio_Toggle_Checked(object sender, RoutedEventArgs e)
         {
             codec_Audio.IsEnabled = true;
@@ -942,7 +972,7 @@ namespace yt_dlp_GUI_dotnet8
             Toast.ShowToast("成功", "履歴を削除しました");
         }
 
-       
+
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {

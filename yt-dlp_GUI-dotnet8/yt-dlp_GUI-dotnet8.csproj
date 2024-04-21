@@ -10,8 +10,8 @@
     <ApplicationIcon>download.ico</ApplicationIcon>
     <Title>AllVideoDownloader（仮）</Title>
     <Copyright>とある学生の改造日記</Copyright>
-    <AssemblyVersion>1.0.0.5</AssemblyVersion>
-    <FileVersion>1.0.0.5</FileVersion>
+    <AssemblyVersion>1.0.0.6</AssemblyVersion>
+    <FileVersion>1.0.0.6</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,11 +21,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="muhu.jpg" />
-    <None Remove="party.gif" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="download.ico" />
@@ -39,11 +34,6 @@
     <PackageReference Include="ShowMeTheXAML.MSBuild" Version="2.0.0" />
     <PackageReference Include="WindowsAPICodePack" Version="7.0.4" />
     <PackageReference Include="YoutubeDLSharp" Version="1.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="muhu.jpg" />
-    <Resource Include="party.gif" />
   </ItemGroup>
 
   <ItemGroup>
