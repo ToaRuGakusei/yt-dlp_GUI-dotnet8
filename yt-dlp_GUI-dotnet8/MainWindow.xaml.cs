@@ -286,8 +286,8 @@ namespace yt_dlp_GUI_dotnet8
                 EmbedThumbnail = true, //サムネイルを付加
                 IgnoreErrors = true, //エラー無視
                 YesPlaylist = (dLLists[0] as DLList).YesPlayList, //PlayListかどうかを明示する
-                //ListFormats = true, //フォーマットリストを表示？
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
+         
             };
             run = Task.Run(() =>
             {
@@ -295,7 +295,6 @@ namespace yt_dlp_GUI_dotnet8
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     ytdl.RunVideoDownload(url, progress: progress, ct: cts.Token, overrideOptions: options);
-
                 }));
             });
         }
@@ -422,7 +421,8 @@ namespace yt_dlp_GUI_dotnet8
         }
 
         private int count = 1; //ListViewのカウント
-        private void showProgress(DownloadProgress p)
+        private bool DownloadIsEnd = false;
+        private async void showProgress(DownloadProgress p)
         {
             prog.Value = p.Progress;
             int a = (int)(p.Progress * 100);
@@ -434,16 +434,28 @@ namespace yt_dlp_GUI_dotnet8
                 saveVideosInfomation sv = new saveVideosInfomation();
                 if (dLLists.Count != count)
                 {
-                    sv.SaveInfo(((DLList)list.Items[count - 1]).url);
-                    count += 1;
-                    Debug.WriteLine($"Count::{count - 1}");
-                    var b = ((DLList)list.Items[count - 1]).url;
-                    Debug.WriteLine(b);
-                    if (loading != null)
+                    Next(sv);
+                }
+                else if((dLLists[0] as DLList).YesPlayList)
+                {
+                    await Task.Delay(1000);
+                    Process[] processes = Process.GetProcessesByName("yt-dlp");
+                    if(processes.Length == 0)
                     {
-                        loading.Close();
+                        Debug.WriteLine("Not runnning");
+                        DownloadIsEnd = true;
+
+                    }else
+                    {
+                        Debug.WriteLine("Running");
+                        DownloadIsEnd = false;
                     }
-                    DownloadAsync(b);
+                    if(DownloadIsEnd)
+                    {
+                        DownloadIsEnd = false;
+                        EndDownload(sv, false);
+                    }
+                    Debug.WriteLine(run.Status);
                 }
                 else 
                 {
@@ -461,6 +473,20 @@ namespace yt_dlp_GUI_dotnet8
                 Debug.WriteLine(p.State.ToString());
             }*/
 
+        }
+
+        private void Next(saveVideosInfomation sv)
+        {
+            sv.SaveInfo(((DLList)list.Items[count - 1]).url);
+            count += 1;
+            Debug.WriteLine($"Count::{count - 1}");
+            var b = ((DLList)list.Items[count - 1]).url;
+            Debug.WriteLine(b);
+            if (loading != null)
+            {
+                loading.Close();
+            }
+            DownloadAsync(b);
         }
 
         private void EndDownload(saveVideosInfomation sv, bool error)
@@ -686,7 +712,6 @@ namespace yt_dlp_GUI_dotnet8
                 Debug.WriteLine(ExtractUrl);
                 DownloadAsync(ExtractUrl);
             }
-            Toast.ShowToast("All Done!", "おわったお", "https://www.videohelp.com/softwareimages/thumb_yt_dlp_1829.jpg");
         }
         private async void Info_Search(object sender, RoutedEventArgs e)
         {

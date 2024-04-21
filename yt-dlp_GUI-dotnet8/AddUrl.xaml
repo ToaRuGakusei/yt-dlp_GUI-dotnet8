@@ -33,7 +33,7 @@
                     AcceptsReturn="True"
                     ScrollViewer.CanContentScroll="True"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" Height="308" VerticalAlignment="Top" />
                 </GroupBox>
                 <Button
                 Name="Add"
