@@ -116,7 +116,6 @@ namespace yt_dlp_GUI_dotnet8
 
         /// <summary>
         /// ここで設定をロード
-        /// もっときれいにしたい。xmlで設定を保存する方法勉強中
         /// 2024/02/03作成
         /// </summary>
         private void Settings_Apply()
@@ -128,6 +127,7 @@ namespace yt_dlp_GUI_dotnet8
                 StreamWriter sw = new StreamWriter(@".\Settings.json");
                 sw.WriteLine(" ");
                 sw.Close();
+                FirstWriteSettings();
             }
             else
             {
@@ -187,7 +187,8 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     video_Value = video[Pixel];
                     combo.SelectedIndex = Pixel;
-                }else
+                }
+                else
                 {
                     video_Value = video[0];
                     combo.SelectedIndex = 0;
@@ -195,21 +196,24 @@ namespace yt_dlp_GUI_dotnet8
                 if (!(Codec == -1))
                 {
                     codec.SelectedIndex = Codec;
-                }else
+                }
+                else
                 {
                     codec.SelectedIndex = 0;
                 }
                 if (!(Codec_Audio == -1))
                 {
                     codec_Audio.SelectedIndex = Codec_Audio;
-                }else
+                }
+                else
                 {
                     codec_Audio.SelectedIndex = 0;
                 }
                 if (!(Merge == -1))
                 {
                     container.SelectedIndex = Merge;
-                }else
+                }
+                else
                 {
                     container.SelectedIndex = 0;
                 }
@@ -217,7 +221,8 @@ namespace yt_dlp_GUI_dotnet8
                 if (!(Audio_Only_Value == -1))
                 {
                     Only.SelectedIndex = Audio_Only_Value;
-                }else
+                }
+                else
                 {
                     Only.SelectedIndex = 0;
                 }
@@ -818,6 +823,39 @@ namespace yt_dlp_GUI_dotnet8
             File.Delete(DownloadRecent_Path);
             Toast.ShowToast("成功", "履歴を削除しました");
 
+        }
+        private void FirstWriteSettings()
+        {
+            try
+            {
+                downloadSetting.AudioCodec = 0;
+                downloadSetting.AudioCodecIsEnable = false;
+                downloadSetting.AudioOnly = 0;
+                downloadSetting.AudioOnlyIsEnable = false;
+                downloadSetting.Codec = 0;
+                downloadSetting.CodecIsEnable = false;
+                downloadSetting.CookiesIsEnable = false;
+                if (PasswordBox.Name != null)
+                {
+                    downloadSetting.Cookies = PasswordBox.Text;
+                }
+                else
+                {
+                    downloadSetting.Cookies = "なし";
+                }
+                downloadSetting.Extension = 0;
+                downloadSetting.ExtensionIsEnable = false;
+                downloadSetting.HighQualityVideoIsEnable = false;
+                downloadSetting.Pixel = 0;
+                downloadSetting.PixelIsEnable = false;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+            setJson.saveJson(downloadSetting);
         }
         private void WriteSettings()
         {
