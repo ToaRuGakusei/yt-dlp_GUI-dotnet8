@@ -30,6 +30,8 @@ namespace yt_dlp_GUI_dotnet8
 
             theme.SetBaseTheme(Theme.Dark);
             palette.SetTheme(theme);
+
+            MouseLeftButtonDown += (sender, e) => { DragMove(); };
         }
         public string[] urls;
         private void Add_Click(object sender, RoutedEventArgs e)

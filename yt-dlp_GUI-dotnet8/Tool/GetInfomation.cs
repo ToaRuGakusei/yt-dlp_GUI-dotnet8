@@ -17,21 +17,16 @@ namespace yt_dlp_GUI_dotnet8.Tool
             public string AudioFormats { get; set; }
         }
 
-        public async Task<ObservableCollection<Formats>> CodecInfomation(string url)
+        public async Task<ObservableCollection<Formats>> CodecInfomation(VideoData data)
         {
 #pragma warning disable CS8603 // Null 参照戻り値である可能性があります。
             return await Task.Run(async () =>
             {
-                var ytdl = new YoutubeDL();
-                ytdl.YoutubeDLPath = @".\yt-dlp.exe";
-                ytdl.FFmpegPath = @".\ffmpeg.exe";
-                VideoData videoData = null;
                 ObservableCollection<Formats> VideoFormats = new ObservableCollection<Formats>(); //コーディック情報を格納
 
                 try
                 {
-                    var res = await ytdl.RunVideoDataFetch(url);
-                    videoData = res.Data;
+                    var videoData = data;
                     var formats = videoData.Formats;
                     foreach (var format in formats)
                     {
@@ -61,7 +56,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 var ytdl = new YoutubeDL();
                 ytdl.YoutubeDLPath = @".\yt-dlp.exe";
                 ytdl.FFmpegPath = @".\ffmpeg.exe";
-                VideoData videoData = null;
+                VideoData videoData = new VideoData();
                 try
                 {
                     var res = await ytdl.RunVideoDataFetch(url);

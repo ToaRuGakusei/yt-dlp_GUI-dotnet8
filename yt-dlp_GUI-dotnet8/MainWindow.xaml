@@ -85,7 +85,7 @@
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="詳細設定" />
+                                        <MenuItem Header="詳細設定"/>
                                     </ContextMenu>
                                 </Setter.Value>
 
@@ -391,8 +391,7 @@
                                 <Image
                                     Name="thumbPic"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Source="muhu.jpg" />
+                                    VerticalAlignment="Center" />
                             </GroupBox>
                         </Grid>
                         <GroupBox Margin="16" Header="Infomation">
@@ -451,7 +450,7 @@
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="Setdefault_Checked"
+                        Checked="SetDefault_Checked"
                         IsChecked="True"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
@@ -481,14 +480,6 @@
                         materialDesign:HintAssist.Hint="Cookie"
                         materialDesign:TextFieldAssist.HasClearButton="True"
                         IsEnabled="False" />
-                    <Button
-                        Name="Cookies"
-                        Width="116"
-                        Margin="0,14,148,10"
-                        HorizontalAlignment="Right"
-                        Click="Cookies_Clicked_Click"
-                        Content="保存"
-                        IsEnabled="False" />
                 </Grid>
                 <Grid Height="56">
                     <Label
@@ -511,7 +502,6 @@
                         Name="combo"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="解像度"
-                        DropDownClosed="combo_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="144p" />
                         <ComboBoxItem Content="240p" />
@@ -545,7 +535,6 @@
                         Name="codec"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="コーディック"
-                        DropDownClosed="codec_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="H264（おすすめ）" />
                         <ComboBoxItem Content="H265" />
@@ -574,7 +563,6 @@
                         Name="codec_Audio"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="オーディオコーディック"
-                        DropDownClosed="codec_Audio_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
@@ -596,13 +584,11 @@
                         IsChecked="False"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="container_Toggle_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton"/>
                     <ComboBox
                         Name="container"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="拡張子"
-                        DropDownClosed="container_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="MP4" />
                         <ComboBoxItem Content="MKV" />
@@ -630,12 +616,15 @@
                         Name="Only"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="オーディオコーディック"
-                        DropDownClosed="Audio_Only_DropDownClosed"
                         IsEnabled="False">
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
                         <ComboBoxItem Content="FLAC" />
                     </ComboBox>
+                </Grid>
+                <Grid Height="56">
+                    <Button Content="設定を保存" Margin="0,12,0,12" Click="Button_Click_1" HorizontalAlignment="Center" Width="176"/>
+
                 </Grid>
                 <Grid Height="56">
                     <Label
