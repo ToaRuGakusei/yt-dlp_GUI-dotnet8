@@ -93,7 +93,8 @@ namespace yt_dlp_GUI_dotnet8
         {
             InitializeComponent();
             CheckUpdate checkUpdate = new();
-            //_ = checkUpdate.Check("ToaRuGakusei", "yt-dlp_GUI-dotnet8");
+            _ = checkUpdate.Check("yt-dlp_GUI-dotnet8", "ToaRuGakusei");
+            _ = checkUpdate.Check("yt-dlp", "yt-dlp");
             InitializeAsync();//WebView2関連の設定をする
             QuestionDownloadFirst(); //ここでtoolの有無を確認（なければダウンロードするか聞く）
             Settings_Apply();//設定を反映させる
