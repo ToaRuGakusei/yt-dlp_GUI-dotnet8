@@ -10,8 +10,8 @@
     <ApplicationIcon>download.ico</ApplicationIcon>
     <Title>AllVideoDownloader（仮）</Title>
     <Copyright>とある学生の改造日記</Copyright>
-    <AssemblyVersion>1.0.0.6</AssemblyVersion>
-    <FileVersion>1.0.0.6</FileVersion>
+    <AssemblyVersion>1.0.0.7</AssemblyVersion>
+    <FileVersion>1.0.0.7</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -20,14 +20,23 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 var latestRelease = releases[0];
                 var latestVersion = latestRelease.CreatedAt;
                 var lastUpdate = "";
-                using(StreamReader sm = new StreamReader(@".\.lastUpdate.txt"))
+                try
                 {
-                    lastUpdate = sm.ReadLine();
+                    using (StreamReader sm = new StreamReader(@".\.lastUpdate.txt"))
+                    {
+                        lastUpdate = sm.ReadLine();
+                    }
                 }
+                catch(Exception ex)
+                {
+                    lastUpdate = ("2024/04/24 10:10:00");
+                }
+
                 Debug.WriteLine(Convert.ToDateTime(lastUpdate));
                 Debug.WriteLine(latestVersion.DateTime.AddHours(9));
+
                 //JSTで日付を管理（GitHub側は世界標準時間になっているから、9時間プラスして日本時間に変更）
-                if (repo == "yt-dlp_GUI-dotnet8" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime("2024/04/01 11:43:00"))
+                if (repo == "yt-dlp_GUI-dotnet8" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime("2024/04/24 10:10:00"))
                 {
                     var update = MessageBox.Show($"新しいバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (update != MessageBoxResult.Yes)
@@ -106,8 +115,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 };
                 Process.Start(pi);
                 Environment.Exit(0);
-            }
-            
+            }          
         }
     }
 
