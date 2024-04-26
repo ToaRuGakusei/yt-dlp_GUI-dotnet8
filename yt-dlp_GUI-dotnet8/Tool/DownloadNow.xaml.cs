@@ -97,9 +97,5 @@ namespace yt_dlp_GUI_dotnet8
         {
             await LoopTask();
         }
-
-        private void Window_Unloaded(object sender, RoutedEventArgs e)
-        {
-        }
     }
 }

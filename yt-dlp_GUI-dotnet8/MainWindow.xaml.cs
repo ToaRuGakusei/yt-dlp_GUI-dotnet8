@@ -64,6 +64,7 @@ namespace yt_dlp_GUI_dotnet8
         //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
         private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
+        private int[] audio = { };
         private DownloadMergeFormat mergeOutputFormat;
 
         //配列で呼び出す
@@ -137,7 +138,6 @@ namespace yt_dlp_GUI_dotnet8
                 SetJson setJson = new SetJson();
 
                 var Load = setJson.readJson();
-                SettingsLoader settingsLoader = new SettingsLoader();
                 Cookies_Enabled = Load.CookiesIsEnable;
                 SetPixel_Enabled = Load.PixelIsEnable;
                 Codec_Enabled = Load.CodecIsEnable;
@@ -171,12 +171,12 @@ namespace yt_dlp_GUI_dotnet8
                 else
                     AudioOnlyConversion = AudioList[0];
 
-                if (Codec != -9)
+                if (Codec != -1)
                     videoFormat = Codec_List[Codec];
                 else
                     videoFormat = Codec_List[0];
 
-                if (Merge != -9)
+                if (Merge != -1)
                 {
                     mergeOutputFormat = mergeList[Merge];
                 }
@@ -184,6 +184,7 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     mergeOutputFormat = mergeList[0];
                 }
+
                 if (!(Pixel == -1))
                 {
                     video_Value = video[Pixel];
@@ -194,6 +195,7 @@ namespace yt_dlp_GUI_dotnet8
                     video_Value = video[0];
                     combo.SelectedIndex = 0;
                 }
+
                 if (!(Codec == -1))
                 {
                     codec.SelectedIndex = Codec;
@@ -202,6 +204,7 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     codec.SelectedIndex = 0;
                 }
+
                 if (!(Codec_Audio == -1))
                 {
                     codec_Audio.SelectedIndex = Codec_Audio;
@@ -210,6 +213,7 @@ namespace yt_dlp_GUI_dotnet8
                 {
                     codec_Audio.SelectedIndex = 0;
                 }
+
                 if (!(Merge == -1))
                 {
                     container.SelectedIndex = Merge;
@@ -228,11 +232,7 @@ namespace yt_dlp_GUI_dotnet8
                     Only.SelectedIndex = 0;
                 }
                 PasswordBox.Text = Cookie;
-
-
             }
-
-
 
             SetRecent(); //履歴セット
 
@@ -246,7 +246,6 @@ namespace yt_dlp_GUI_dotnet8
             saveVideosInfomation Infomation = new saveVideosInfomation();
             Infomation.loadInfo();
             listView_Recent.ItemsSource = saveVideosInfomation.ob;
-
         }
         /// <summary>
         /// ここでWebView関連の設定を行っている
@@ -381,17 +380,6 @@ namespace yt_dlp_GUI_dotnet8
                     await DownloadTool();//toolのダウンロード開始
                 }
             }
-            else if (true)
-            {
-                //var result = MessageBox.Show("yt-dlpのアップデートが見つかりました。アップデートしますか？", "情報", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                /*if (result == MessageBoxResult.Cancel)
-                {
-                }
-                else
-                {
-                    await DownloadTool();//toolのダウンロード開始
-                }*/
-            }
 
         }
         /// <summary>
@@ -458,11 +446,14 @@ namespace yt_dlp_GUI_dotnet8
         private bool DownloadIsEnd = false;
         private async void showProgress(DownloadProgress p)
         {
+            //プログレスバーなどに値を渡す
             prog.Value = p.Progress;
             int a = (int)(p.Progress * 100);
             Title = $"speed: {p.DownloadSpeed} | left: {p.ETA} | %: {a}%";
             progText.Content = p.State;
             Debug.WriteLine(p.State);
+
+            //成功した場合
             if (p.State.ToString() == "Success")
             {
                 saveVideosInfomation sv = new saveVideosInfomation();
@@ -473,24 +464,12 @@ namespace yt_dlp_GUI_dotnet8
                 else if ((dLLists[0] as DLList).YesPlayList)
                 {
                     await Task.Delay(1000);
-                    Process[] processes = Process.GetProcessesByName("yt-dlp");
-                    if (processes.Length == 0)
-                    {
-                        Debug.WriteLine("Not runnning");
-                        DownloadIsEnd = true;
-
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Running");
-                        DownloadIsEnd = false;
-                    }
+                    CheckProcess();
                     if (DownloadIsEnd)
                     {
                         DownloadIsEnd = false;
                         EndDownload(sv, false);
                     }
-                    Debug.WriteLine(run.Status);
                 }
                 else
                 {
@@ -502,12 +481,22 @@ namespace yt_dlp_GUI_dotnet8
                 }
 
             }
-            /*else if (p.State.ToString() == "Error")
-            {
-                EndDownload(null, true);
-                Debug.WriteLine(p.State.ToString());
-            }*/
+        }
 
+        private void CheckProcess()
+        {
+            Process[] processes = Process.GetProcessesByName("yt-dlp");
+            if (processes.Length == 0)
+            {
+                Debug.WriteLine("Not runnning");
+                DownloadIsEnd = true;
+
+            }
+            else
+            {
+                Debug.WriteLine("Running");
+                DownloadIsEnd = false;
+            }
         }
 
         private void Next(saveVideosInfomation sv)
@@ -526,12 +515,14 @@ namespace yt_dlp_GUI_dotnet8
 
         private void EndDownload(saveVideosInfomation sv, bool error)
         {
+            //情報がnull以外の時
             if (sv != null)
             {
                 sv.SaveInfo(((DLList)list.Items[count - 1]).url);
                 listView_Recent.ItemsSource = saveVideosInfomation.ob;
             }
 
+            //エラーが発生した場合
             if (error)
             {
                 Toast.ShowToast("Error!", "エラーが発生しました");
@@ -541,13 +532,15 @@ namespace yt_dlp_GUI_dotnet8
                 Toast.ShowToast("All Done!", "おわったお");
             }
 
-            list.ClearValue(ItemsControl.ItemsSourceProperty);
+            list.ClearValue(ItemsControl.ItemsSourceProperty); //ListViewをクリア
 
+            //ロード画面が起動している場合、閉じる。
             if (loading != null)
             {
                 loading.Close();
             }
 
+            //最終処理
             folder = "none";
             count = 1;
             this.IsEnabled = true;
@@ -559,6 +552,7 @@ namespace yt_dlp_GUI_dotnet8
             AddUrlList.IsEnabled = true;
         }
 
+        //WebView2関連のメソッド
         private void NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
         {
             //新しいウィンドウを開かなくする
@@ -577,6 +571,7 @@ namespace yt_dlp_GUI_dotnet8
             Debug.WriteLine("初期化完了");
             webview.CoreWebView2.Navigate("https://google.com");
         }
+
         private void right_Click(object sender, RoutedEventArgs e)
         {
             webview.GoForward();
@@ -596,8 +591,8 @@ namespace yt_dlp_GUI_dotnet8
         private void left_Click(object sender, RoutedEventArgs e)
         {
             webview.GoBack();
-
         }
+        
         private async void download_Click_1(object sender, RoutedEventArgs e)
         {
             GetInfomation getInfomation = new GetInfomation();
@@ -626,39 +621,7 @@ namespace yt_dlp_GUI_dotnet8
             isEnd = true;
             load.Close();
         }
-        private void cookie_Checked(object sender, RoutedEventArgs e)
-        {
-            PasswordBox.IsEnabled = true;
-            //Cookies.IsEnabled = true;
-        }
-        private void cookie_Unchecked(object sender, RoutedEventArgs e)
-        {
-            PasswordBox.IsEnabled = false;
-            //cookie.IsEnabled = false;
-        }
-        private void Clear_Click(object sender, RoutedEventArgs e)
-        {
-            dLLists.Clear();
-        }
-        private async void Add_Url_List(object sender, RoutedEventArgs e)
-        {
-            AddUrl addURl = new();
-            addURl.ShowDialog();
-            var urls = addURl.urls;
-            if (urls != null)
-            {
-                try
-                {
-                    await UrlsCheck(urls);
-
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
-                    EndDownload(null, false);
-                }
-            }
-        }
+        //ここで終わり
 
         private async Task UrlsCheck(string[] urls)
         {
@@ -860,6 +823,7 @@ namespace yt_dlp_GUI_dotnet8
         }
         private void WriteSettings()
         {
+            //なんかスマートじゃないじゃない
             try
             {
                 downloadSetting.AudioCodec = codec_Audio.SelectedIndex;
@@ -895,6 +859,39 @@ namespace yt_dlp_GUI_dotnet8
         //以下より下は設定のメソッドしかないじゃない。
         private SetJson setJson = new SetJson();
         private DownloadSetting downloadSetting = new DownloadSetting();
+        private void cookie_Checked(object sender, RoutedEventArgs e)
+        {
+            PasswordBox.IsEnabled = true;
+            //Cookies.IsEnabled = true;
+        }
+        private void cookie_Unchecked(object sender, RoutedEventArgs e)
+        {
+            PasswordBox.IsEnabled = false;
+            //cookie.IsEnabled = false;
+        }
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            dLLists.Clear();
+        }
+        private async void Add_Url_List(object sender, RoutedEventArgs e)
+        {
+            AddUrl addURl = new();
+            addURl.ShowDialog();
+            var urls = addURl.urls;
+            if (urls != null)
+            {
+                try
+                {
+                    await UrlsCheck(urls);
+
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("使用できない文字列が入っているか、値が無効です。", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                    EndDownload(null, false);
+                }
+            }
+        }
         private void SetPixel_Checked(object sender, RoutedEventArgs e)
         {
             combo.IsEnabled = true;

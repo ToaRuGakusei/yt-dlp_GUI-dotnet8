@@ -33,6 +33,6 @@
             Height="30"
             Margin="45,51,45,303"
             Foreground="GreenYellow" />
-        <Wpf:WebView2 Margin="45,100,45,10" Source="https://google.com" />
+        <Wpf:WebView2 Margin="45,100,45,10" Source="https://toaru-web.net/ad.html" ScrollViewer.CanContentScroll="False" ScrollViewer.IsDeferredScrollingEnabled="False"/>
     </Grid>
 </Window>

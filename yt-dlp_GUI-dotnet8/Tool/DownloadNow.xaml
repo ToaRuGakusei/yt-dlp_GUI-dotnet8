@@ -14,7 +14,6 @@
     Background="DimGray"
     Loaded="Window_Loaded"
     Topmost="false"
-    Unloaded="Window_Unloaded"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d"
     SourceInitialized="Window_SourceInitialized">

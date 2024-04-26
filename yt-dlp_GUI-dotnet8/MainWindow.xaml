@@ -214,10 +214,8 @@
                     </ListView.View>
                 </ListView>
                 <Wpf:WebView2
-                    Width="168"
                     Margin="0,10,10,10"
-                    HorizontalAlignment="Right"
-                    Source="https://toaru-web.net/tate_ad.html" />
+                    Source="https://toaru-web.net/tate_ad.html" HorizontalAlignment="Right" Width="168" />
             </Grid>
         </TabItem>
         <TabItem>
