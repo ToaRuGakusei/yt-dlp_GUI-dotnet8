@@ -40,6 +40,7 @@ namespace yt_dlp_GUI_dotnet8
         private int Codec_Audio = 0;
         private int Video = 0;
         private int video_Value = 0;
+        private int Audio_Value = 0;
         private int Merge = 0;
         private int Audio_Only_Value = 0;
 
@@ -64,7 +65,7 @@ namespace yt_dlp_GUI_dotnet8
         //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
         private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
-        private int[] audio = { };
+        private int[] audio = {233,140,234};
         private DownloadMergeFormat mergeOutputFormat;
 
         //配列で呼び出す
@@ -192,7 +193,7 @@ namespace yt_dlp_GUI_dotnet8
                 }
                 else
                 {
-                    video_Value = video[0];
+                    video_Value = video[5];
                     combo.SelectedIndex = 0;
                 }
 
@@ -208,10 +209,12 @@ namespace yt_dlp_GUI_dotnet8
                 if (!(Codec_Audio == -1))
                 {
                     codec_Audio.SelectedIndex = Codec_Audio;
+                    Audio_Value = audio[Codec_Audio];
                 }
                 else
                 {
                     codec_Audio.SelectedIndex = 0;
+                    Audio_Value = audio[1];
                 }
 
                 if (!(Merge == -1))
@@ -308,9 +311,10 @@ namespace yt_dlp_GUI_dotnet8
             }
             var options = new OptionSet()
             {
-                Format = $"{video_Value}+bestaudio/bestvideo+bestaudio", //動画のダウンロード形式を指定
+                Format = $"bestvideo[ext=mp4]+bestaudio[ext=m4a]", //動画のダウンロード形式を指定
+                //RemuxVideo= "aac/mkv",
                 FormatSort = $"vcodec:{videoFormat}", //コーディックを指定
-                AudioFormat = (bool)audio_Only_Toggle.IsChecked ? AudioOnlyConversion : AudioConversion, //オーディオコーデックを指定
+                AudioFormat = AudioConversion, //オーディオコーデックを指定
                 ExtractAudio = (bool)audio_Only_Toggle.IsChecked, //Audioのみになる。（なぜかきちんとコーデックが反映されている）
                 MergeOutputFormat = mergeOutputFormat, //コンテナ？を指定
                 Cookies = Cookie, //クッキーを指定
@@ -320,6 +324,8 @@ namespace yt_dlp_GUI_dotnet8
                 IgnoreErrors = true, //エラー無視
                 YesPlaylist = (dLLists[0] as DLList).YesPlayList, //PlayListかどうかを明示する
                 Retries = 5 //リトライ回数を指定（ここはユーザーに選んでもらう）
+                
+                
 
             };
             run = Task.Run(() =>
@@ -644,10 +650,7 @@ namespace yt_dlp_GUI_dotnet8
                     {
                         if (codec != null)
                         {
-                            Debug.Write("ビデオフォーマット＝" + codec.VideoFormats[0] + "\n");
-                            Debug.Write("フォーマットID＝" + codec.VideoFormatID + "\n");
-                            Debug.Write("オーディオフォーマット" + codec.AudioFormats[0] + "\n");
-                            Debug.Write("ID＝" + codec.AudioFormatID + "\n");
+
                         }
                     }
                     if (result.LiveStatus == LiveStatus.IsLive)
@@ -809,8 +812,8 @@ namespace yt_dlp_GUI_dotnet8
                 }
                 downloadSetting.Extension = 0;
                 downloadSetting.ExtensionIsEnable = false;
-                downloadSetting.HighQualityVideoIsEnable = false;
-                downloadSetting.Pixel = 0;
+                downloadSetting.HighQualityVideoIsEnable = true;
+                downloadSetting.Pixel = 5;
                 downloadSetting.PixelIsEnable = false;
             }
             catch (Exception ex)
@@ -913,10 +916,11 @@ namespace yt_dlp_GUI_dotnet8
 
         private void SetDefault_Checked(object sender, RoutedEventArgs e)
         {
-            /*Only.IsEnabled = false;
-            combo.IsEnabled = false;
+            
+            /*combo.IsEnabled = false;
             codec.IsEnabled = false;
             codec_Audio.IsEnabled = false;
+            Only.IsEnabled = false;
             container.IsEnabled = false;
             container_Toggle.IsEnabled = false;
             Codec_Audio_Toggle.IsEnabled = false;
