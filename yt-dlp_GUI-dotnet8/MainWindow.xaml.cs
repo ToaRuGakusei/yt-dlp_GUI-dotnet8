@@ -678,7 +678,6 @@ namespace yt_dlp_GUI_dotnet8
         {
             return Uri.IsWellFormedUriString(uri, UriKind.Absolute);
         }
-
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             if (System.IO.File.Exists(Cookies_Path))

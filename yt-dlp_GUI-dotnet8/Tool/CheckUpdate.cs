@@ -53,7 +53,8 @@ namespace yt_dlp_GUI_dotnet8.Tool
                         await latest_Download(fileDownloader, dln, repo);
                         isEnd = true;
                     }
-                }else if(repo == "yt-dlp" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime(lastUpdate))
+                }
+                else if(repo == "yt-dlp" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime(lastUpdate))
                 {
                     var update = MessageBox.Show($"新しいバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (update != MessageBoxResult.Yes)
