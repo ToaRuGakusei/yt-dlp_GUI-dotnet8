@@ -29,7 +29,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 }
                 catch(Exception ex)
                 {
-                    lastUpdate = ("2024/04/24 10:10:00");
+                    lastUpdate = ("2024/07/28 18:00:00");
                 }
 
                 Debug.WriteLine(Convert.ToDateTime(lastUpdate));
@@ -38,7 +38,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 //JSTで日付を管理（GitHub側は世界標準時間になっているから、9時間プラスして日本時間に変更）
                 if (repo == "yt-dlp_GUI-dotnet8" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime("2024/04/24 10:10:00"))
                 {
-                    var update = MessageBox.Show($"新しいバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var update = MessageBox.Show($"新しいYT-DLPのバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (update != MessageBoxResult.Yes)
                     {
                         return;

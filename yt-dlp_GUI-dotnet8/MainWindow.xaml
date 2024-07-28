@@ -65,7 +65,7 @@
                     Click="Add_Url_List"
                     Content="URLを追加" />
                 <Button
-                    Name="cl"
+                    Name="Cancel"
                     Width="127"
                     Height="32"
                     Margin="16,0,0,19"
@@ -73,24 +73,22 @@
                     VerticalAlignment="Bottom"
                     Click="cancel_Click"
                     Content="Cancel" />
-                <ListView
-                    Name="list"
-                    Margin="0,56,0,56"
-                    FontSize="20"
-                    IsEnabled="True"
-                    Style="{DynamicResource DownloadListView}">
+                <ListView Name="list"
+                          Margin="0,56,0,56"
+                          FontSize="20"
+                          IsEnabled="True"
+                          Style="{DynamicResource DownloadListView}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                            <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=Items.IndexOf}" />
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="詳細設定"/>
+                                        <MenuItem Header="詳細設定" />
                                     </ContextMenu>
                                 </Setter.Value>
-
                             </Setter>
-                            <!--  選択時の背景色  -->
+                            <!-- 選択時の背景色 -->
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="Transparent" />
@@ -110,18 +108,14 @@
                             <GridViewColumn Width="200" Header="Cover">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <Image
-                                                Width="200"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                RenderOptions.BitmapScalingMode="HighQuality"
-                                                Source="{Binding image}" />
-                                            <ProgressBar
-                                                Height="15"
-                                                Margin="0,140,0,0"
-                                                Value="{Binding value}" />
-                                        </Grid>
+                                        <StackPanel>
+                                            <Image Width="200"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                                   Source="{Binding image}" />
+                                            <Button Margin="0,10,0,0" VerticalAlignment="Bottom" Content="詳細設定" Click="DetailSetting_Click"></Button>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -177,6 +171,7 @@
                     Margin="10,10,190,10"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Stretch"
+                    ItemsSource="{Binding Recent}"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                     SelectionChanged="listView_Recent_Selected"
@@ -214,8 +209,10 @@
                     </ListView.View>
                 </ListView>
                 <Wpf:WebView2
+                    Width="168"
                     Margin="0,10,10,10"
-                    Source="https://toaru-web.net/tate_ad.html" HorizontalAlignment="Right" Width="168" />
+                    HorizontalAlignment="Right"
+                    Source="https://toaru-web.net/tate_ad.html" />
             </Grid>
         </TabItem>
         <TabItem>
@@ -449,7 +446,7 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="SetDefault_Checked"
-                        IsChecked="True"
+                        IsChecked="{Binding SetHighQuality}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToolTip="MaterialDesignSwitchLightToggleButton"
@@ -466,18 +463,19 @@
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        IsChecked="False"
+                        IsChecked="{Binding CookiesIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToggleButton.Checked="cookie_Checked"
                         ToggleButton.Unchecked="cookie_Unchecked"
                         ToolTip="MaterialDesignSwitchLightToggleButton" />
                     <TextBox
-                        x:Name="PasswordBox"
+                        x:Name="MyCookies"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="Cookie"
                         materialDesign:TextFieldAssist.HasClearButton="True"
-                        IsEnabled="False" />
+                        IsEnabled="{Binding CookiesIsChecked}"
+                        Text="{Binding myCookies}" />
                 </Grid>
                 <Grid Height="56">
                     <Label
@@ -491,7 +489,7 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="SetPixel_Checked"
-                        IsChecked="False"
+                        IsChecked="{Binding PixelIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToolTip="MaterialDesignSwitchLightToggleButton"
@@ -500,7 +498,8 @@
                         Name="combo"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="解像度"
-                        IsEnabled="False">
+                        IsEnabled="{Binding PixelIsChecked}"
+                        SelectedIndex="{Binding Pixel}">
                         <ComboBoxItem Content="144p" />
                         <ComboBoxItem Content="240p" />
                         <ComboBoxItem Content="360p" />
@@ -524,7 +523,7 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="CodecToggle_Checked"
-                        IsChecked="False"
+                        IsChecked="{Binding CodecIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToolTip="MaterialDesignSwitchLightToggleButton"
@@ -533,7 +532,8 @@
                         Name="codec"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="コーディック"
-                        IsEnabled="False">
+                        IsEnabled="{Binding CodecIsChecked}"
+                        SelectedIndex="{Binding Codec}">
                         <ComboBoxItem Content="H264（おすすめ）" />
                         <ComboBoxItem Content="H265" />
                         <ComboBoxItem Content="VP9" />
@@ -552,7 +552,7 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="Codec_Audio_Toggle_Checked"
-                        IsChecked="False"
+                        IsChecked="{Binding CodecAudioIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToolTip="MaterialDesignSwitchLightToggleButton"
@@ -561,7 +561,8 @@
                         Name="codec_Audio"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="オーディオコーディック"
-                        IsEnabled="False">
+                        IsEnabled="{Binding CodecAudioIsChecked}"
+                        SelectedIndex="{Binding CodecAudio}">
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
                         <ComboBoxItem Content="FLAC" />
@@ -579,15 +580,16 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="container_Toggle_Checked"
-                        IsChecked="False"
+                        IsChecked="{Binding ExtensionIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"/>
+                        ToolTip="MaterialDesignSwitchLightToggleButton" />
                     <ComboBox
                         Name="container"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="拡張子"
-                        IsEnabled="False">
+                        IsEnabled="{Binding ExtensionIsChecked}"
+                        SelectedIndex="{Binding Extension}">
                         <ComboBoxItem Content="MP4" />
                         <ComboBoxItem Content="MKV" />
                         <ComboBoxItem Content="FLV" />
@@ -605,7 +607,7 @@
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
                         Checked="audio_Only_Toggle_Checked"
-                        IsChecked="False"
+                        IsChecked="{Binding AudioOnlyIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
                         ToolTip="MaterialDesignSwitchLightToggleButton"
@@ -614,15 +616,20 @@
                         Name="Only"
                         Margin="190,14,297,10"
                         materialDesign:HintAssist.Hint="オーディオコーディック"
-                        IsEnabled="False">
+                        IsEnabled="{Binding AudioOnlyIsChecked}"
+                        SelectedIndex="{Binding AudioOnly}">
                         <ComboBoxItem Content="MP3" />
                         <ComboBoxItem Content="AAC" />
                         <ComboBoxItem Content="FLAC" />
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Button Content="設定を保存" Margin="0,12,0,12" Click="Button_Click_1" HorizontalAlignment="Center" Width="176"/>
-
+                    <Button
+                        Width="176"
+                        Margin="0,12,0,12"
+                        HorizontalAlignment="Center"
+                        Click="Button_Click_1"
+                        Content="設定を保存" />
                 </Grid>
                 <Grid Height="56">
                     <Label
@@ -635,5 +642,4 @@
             </StackPanel>
         </TabItem>
     </TabControl>
-
 </Window>

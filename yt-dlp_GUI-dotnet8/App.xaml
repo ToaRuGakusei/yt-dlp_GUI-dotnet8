@@ -15,21 +15,21 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="DownloadListView" TargetType="{x:Type ListView}">
-                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignTextBoxBorder}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                <Setter Property="ItemContainerStyle" Value="{Binding View, Converter={StaticResource MaterialDesignListViewItemContainerStyleConverter}, RelativeSource={RelativeSource Mode=Self}}"/>
-                <Setter Property="OverridesDefaultStyle" Value="False"/>
-                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-                <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-                <Setter Property="Template" Value="{Binding View, Converter={StaticResource MaterialDesignListViewTemplateConverter}, RelativeSource={RelativeSource Mode=Self}}"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignTextBoxBorder}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                <Setter Property="ItemContainerStyle" Value="{Binding View, Converter={StaticResource MaterialDesignListViewItemContainerStyleConverter}, RelativeSource={RelativeSource Mode=Self}}" />
+                <Setter Property="OverridesDefaultStyle" Value="False" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.PanningMode" Value="Both" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+                <Setter Property="Template" Value="{Binding View, Converter={StaticResource MaterialDesignListViewTemplateConverter}, RelativeSource={RelativeSource Mode=Self}}" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

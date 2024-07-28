@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
+using static yt_dlp_GUI_dotnet8.Tool.GetInfomation;
 
 namespace yt_dlp_GUI_dotnet8.Tool
 {
@@ -17,17 +18,17 @@ namespace yt_dlp_GUI_dotnet8.Tool
             public string AudioFormats { get; set; }
         }
 
-        public async Task<ObservableCollection<Formats>> CodecInfomation(VideoData data)
+        public async Task<FormatData[]> CodecInfomation(VideoData data)
         {
 #pragma warning disable CS8603 // Null 参照戻り値である可能性があります。
             return await Task.Run(async () =>
             {
                 ObservableCollection<Formats> VideoFormats = new ObservableCollection<Formats>(); //コーディック情報を格納
-
+                FormatData[] formats = null;
                 try
                 {
                     var videoData = data;
-                    var formats = videoData.Formats;
+                    formats = videoData.Formats;
                     foreach (var format in formats)
                     {
                         VideoFormats.Add(new Formats { VideoFormats = format.Format, VideoFormatID = format.FormatId, AudioFormats = format.Format.Contains("Audio") ? format.Format : "none", AudioFormatID = format.AudioCodec });
@@ -42,7 +43,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                     //MessageBox.Show("何らかのエラーにより、処理ができませんでした。\nURLが正しいかご確認ください。");
                     Debug.WriteLine(e);
                 }
-                return VideoFormats;
+                return formats;
 
             });
         }

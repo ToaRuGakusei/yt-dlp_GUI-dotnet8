@@ -9,6 +9,7 @@ namespace yt_dlp_GUI_dotnet8
     /// </summary>
     public partial class App : Application
     {
+        public ViewModel ViewModel { get; set; }
     }
-
+    
 }
