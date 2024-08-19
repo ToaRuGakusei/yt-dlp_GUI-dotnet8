@@ -40,14 +40,10 @@ namespace yt_dlp_GUI_dotnet8
             urls = tmp.Split("\r\n");
             this.Close();
         }
-        private void Close_Clicked(object sender, RoutedEventArgs e)
+
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void Window_Unloaded(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
+using YoutubeDLSharp.Options;
 using static yt_dlp_GUI_dotnet8.Tool.GetInfomation;
 
 namespace yt_dlp_GUI_dotnet8.Tool
@@ -17,7 +18,11 @@ namespace yt_dlp_GUI_dotnet8.Tool
             public string AudioFormatID { get; set; }
             public string AudioFormats { get; set; }
         }
-
+        public GetInfomation()
+        {
+            _vm = (App.Current as App).ViewModel;
+        }
+        ViewModel _vm;
         public async Task<FormatData[]> CodecInfomation(VideoData data)
         {
 #pragma warning disable CS8603 // Null 参照戻り値である可能性があります。
@@ -57,10 +62,14 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 var ytdl = new YoutubeDL();
                 ytdl.YoutubeDLPath = @".\yt-dlp.exe";
                 ytdl.FFmpegPath = @".\ffmpeg.exe";
+                var options = new OptionSet()
+                {
+                    Cookies = _vm.myCookies.Replace("\"",""), //クッキーを指定
+                };
                 VideoData videoData = new VideoData();
                 try
                 {
-                    var res = await ytdl.RunVideoDataFetch(url);
+                    var res = await ytdl.RunVideoDataFetch(url,CancellationToken.None,true,false,options);
                     videoData = res.Data;
                     var formats = videoData.Formats;
 

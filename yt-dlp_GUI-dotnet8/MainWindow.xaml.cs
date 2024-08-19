@@ -62,8 +62,8 @@ namespace yt_dlp_GUI_dotnet8
 
         //解像度の番号がいまいちわからない。情報を取得して選ばせたい。
         //597(256x144) 160(256x144) 133(426x240) 134(640x360) 135(854x480) 298(1280x720) 299(1920x1080) 400(2560x1440) 401(3840x2160) 571(7680x4320)　全部AVC
-        private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
-        private int[] audio = { 233, 140, 234 };
+        /*private int[] video = { 160, 133, 134, 135, 298, 299, 400, 401, 571 };
+        private int[] audio = { 233, 140, 234 };*/
         private DownloadMergeFormat mergeOutputFormat;
 
         //配列で呼び出す
@@ -95,10 +95,14 @@ namespace yt_dlp_GUI_dotnet8
         public MainWindow()
         {
             InitializeComponent();
-            CheckUpdate checkUpdate = new();
-            _ = checkUpdate.Check("yt-dlp_GUI-dotnet8", "ToaRuGakusei");
-            _ = checkUpdate.Check("yt-dlp", "yt-dlp");
             InitializeAsync();//WebView2関連の設定をする
+            InitializeRun();
+        }
+        private void InitializeRun()
+        {
+            CheckUpdate checkUpdate = new();
+            checkUpdate.Check("yt-dlp_GUI-dotnet8", "ToaRuGakusei");
+            checkUpdate.Check("yt-dlp", "yt-dlp");
             QuestionDownloadFirst(); //ここでtoolの有無を確認（なければダウンロードするか聞く）
             progress = new Progress<DownloadProgress>((p) => showProgress(p));//進捗状況を反映するための式
             ChangeTheme();//ThemeChange
@@ -108,6 +112,7 @@ namespace yt_dlp_GUI_dotnet8
             (App.Current as App).ViewModel = _vm;
             loadSettings1 = new LoadSettings();
             loadSettings1.Settings_Apply();//設定を反映させる
+
         }
         ViewModel _vm;
         /// <summary>

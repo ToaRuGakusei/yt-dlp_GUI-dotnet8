@@ -42,6 +42,7 @@ namespace UpdateCheck
         {
             DirectoryInfo di = new DirectoryInfo(latest + @"update\net8.0-windows10.0.17763.0");
             FileInfo[] files = di.GetFiles();
+
             Directory.Delete(@".\runtimes", true);
             Directory.Move(latest + @"update\net8.0-windows10.0.17763.0\runtimes", @".\runtimes");
 

@@ -26,27 +26,28 @@ namespace yt_dlp_GUI_dotnet8.Tool
         {
             try
             {
-                downloadSetting.AudioCodec = 0;
-                downloadSetting.AudioCodecIsEnable = false;
+                downloadSetting.AudioCodec = 1;
+                downloadSetting.AudioCodecIsEnable = true;
                 downloadSetting.AudioOnly = 0;
                 downloadSetting.AudioOnlyIsEnable = false;
                 downloadSetting.Codec = 0;
-                downloadSetting.CodecIsEnable = false;
+                downloadSetting.CodecIsEnable = true;
                 downloadSetting.CookiesIsEnable = false;
                 downloadSetting.Cookies = "なし";
-                downloadSetting.Extension = 0;
-                downloadSetting.ExtensionIsEnable = false;
+                downloadSetting.Extension = 1;
+                downloadSetting.ExtensionIsEnable = true;
                 downloadSetting.HighQualityVideoIsEnable = true;
                 downloadSetting.Pixel = 5;
-                downloadSetting.PixelIsEnable = false;
+                downloadSetting.PixelIsEnable = true;
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine(ex);
             }
 
 
             setJson.saveJson(downloadSetting);
+            Settings_Apply();
         }
 
 
@@ -68,7 +69,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 }
                 else
                 {
-                    downloadSetting.Cookies = "なし";
+                    downloadSetting.Cookies = "";
                 }
                 downloadSetting.Extension = _viewModel.Extension;
                 downloadSetting.ExtensionIsEnable = _viewModel.ExtensionIsChecked;
