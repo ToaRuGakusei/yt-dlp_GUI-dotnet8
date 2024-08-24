@@ -8,12 +8,16 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-    Title="AllVideoDownloader(仮）"
+    Title="AllVideoDownloader(仮)"
     Width="650"
     Background="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"
     Closing="Window_Closing"
     mc:Ignorable="d">
-    <Window.Resources />
+
+    <Window.Resources>
+        <!-- 必要なリソースやスタイルをここに追加 -->
+    </Window.Resources>
+
     <TabControl
         materialDesign:ColorZoneAssist.Mode="Standard"
         materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
@@ -23,25 +27,13 @@
         SnapsToDevicePixels="True"
         Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
         TabStripPlacement="Left">
-        <materialDesign:NavigationRailAssist.FloatingContent>
-            <Button
-                Margin="8"
-                Click="Start_Click"
-                Content="{materialDesign:PackIcon Kind=CloudDownload}"
-                Style="{StaticResource MaterialDesignFloatingActionAccentButton}" />
-        </materialDesign:NavigationRailAssist.FloatingContent>
+
+        <!-- ダウンロードタブ -->
         <TabItem>
             <TabItem.Header>
-                <StackPanel Width="auto" Height="auto">
-                    <materialDesign:PackIcon
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Center"
-                        Kind="Download" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="12"
-                        Text="Download" />
+                <StackPanel>
+                    <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Download" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Text="Download" />
                 </StackPanel>
             </TabItem.Header>
             <Grid>
@@ -71,10 +63,11 @@
                     Margin="16,0,0,19"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                    Click="cancel_Click"
+                    Click="Cancel_Click"
                     Content="Cancel" />
                 <ListView Name="list"
                           Margin="0,56,0,56"
+                          ItemsSource="{Binding DownloadList}"
                           FontSize="20"
                           IsEnabled="True"
                           Style="{DynamicResource DownloadListView}">
@@ -88,7 +81,6 @@
                                     </ContextMenu>
                                 </Setter.Value>
                             </Setter>
-                            <!-- 選択時の背景色 -->
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="Transparent" />
@@ -113,15 +105,15 @@
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    RenderOptions.BitmapScalingMode="HighQuality"
-                                                   Source="{Binding image}" />
-                                            <Button Margin="0,10,0,0" VerticalAlignment="Bottom" Content="詳細設定" Click="DetailSetting_Click"></Button>
+                                                   Source="{Binding Image}" />
+                                            <Button Margin="0,10,0,0" VerticalAlignment="Bottom" Content="詳細設定" ></Button>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn DisplayMemberBinding="{Binding name}" Header="Title" />
-                            <GridViewColumn DisplayMemberBinding="{Binding url}" Header="URL" />
-                            <GridViewColumn DisplayMemberBinding="{Binding filePath}" Header="FilePath" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Title" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Url}" Header="URL" />
+                            <GridViewColumn DisplayMemberBinding="{Binding FilePath}" Header="FilePath" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -151,30 +143,23 @@
                     FontSize="30" />
             </Grid>
         </TabItem>
+
+        <!-- Recentタブ -->
         <TabItem>
             <TabItem.Header>
-                <StackPanel Width="auto" Height="auto">
-                    <materialDesign:PackIcon
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Center"
-                        Kind="ClockOutline" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="12"
-                        Text="Recent" />
+                <StackPanel>
+                    <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="ClockOutline" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Text="Recent" />
                 </StackPanel>
             </TabItem.Header>
-            <Grid Width="Auto" Height="Auto">
+            <Grid>
                 <ListView
                     x:Name="listView_Recent"
                     Margin="10,10,190,10"
-                    HorizontalContentAlignment="Stretch"
-                    VerticalContentAlignment="Stretch"
                     ItemsSource="{Binding Recent}"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    SelectionChanged="listView_Recent_Selected"
+                    SelectionChanged="ListView_Recent_Selected"
                     SelectionMode="Single">
                     <ListView.ContextMenu>
                         <ContextMenu>
@@ -201,10 +186,7 @@
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" />
-                            <GridViewColumn
-                                Width="300"
-                                DisplayMemberBinding="{Binding URI}"
-                                Header="URL" />
+                            <GridViewColumn Width="300" DisplayMemberBinding="{Binding URI}" Header="URL" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -215,24 +197,19 @@
                     Source="https://toaru-web.net/tate_ad.html" />
             </Grid>
         </TabItem>
+
+        <!-- Browserタブ -->
         <TabItem>
             <TabItem.Header>
-                <StackPanel Width="auto" Height="auto">
-                    <materialDesign:PackIcon
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Center"
-                        Kind="Web" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="12"
-                        Text="Browser" />
+                <StackPanel>
+                    <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Web" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Text="Browser" />
                 </StackPanel>
             </TabItem.Header>
             <Grid>
                 <materialDesign:ColorZone Padding="16" Mode="PrimaryMid">
                     <DockPanel>
-                        <StackPanel materialDesign:RippleAssist.IsCentered="True" Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal">
                             <materialDesign:ColorZone
                                 Width="352"
                                 Margin="16,0,0,0"
@@ -262,36 +239,23 @@
                                     <Button Grid.Column="2" Style="{DynamicResource MaterialDesignToolButton}" />
                                 </Grid>
                             </materialDesign:ColorZone>
-                            <Button
-                                Margin="8,0,0,0"
-                                Panel.ZIndex="0"
-                                Click="Search_Clicked"
-                                Style="{DynamicResource MaterialDesignToolForegroundButton}">
+                            <Button Margin="8,0,0,0" Click="Search_Clicked" Style="{DynamicResource MaterialDesignToolForegroundButton}">
                                 <materialDesign:PackIcon Kind="SearchWeb" />
                             </Button>
-                            <Button
-                                x:Name="left"
-                                Margin="9,0,0,0"
-                                Click="left_Click">
+                            <Button x:Name="left" Margin="9,0,0,0" Click="Left_Click">
                                 <materialDesign:PackIcon Kind="ArrowLeft" />
                             </Button>
-                            <Button
-                                x:Name="reload"
-                                Margin="9,0,0,0"
-                                Click="reload_Click">
+                            <Button x:Name="reload" Margin="9,0,0,0" Click="Reload_Click">
                                 <materialDesign:PackIcon Kind="Reload" />
                             </Button>
-                            <Button
-                                x:Name="right"
-                                Margin="9,0,0,0"
-                                Click="right_Click">
+                            <Button x:Name="right" Margin="9,0,0,0" Click="Right_Click">
                                 <materialDesign:PackIcon Kind="ArrowRight" />
                             </Button>
                             <materialDesign:Badged Badge="{materialDesign:PackIcon Kind=Download}" BadgeColorZoneMode="SecondaryMid">
                                 <Button
                                     Name="download"
                                     Margin="9,5,0,0"
-                                    Click="download_Click_1"
+                                    Click="Download_Click_1"
                                     Content="DLリストに追加"
                                     IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
                             </materialDesign:Badged>
@@ -301,30 +265,19 @@
                 <Wpf:WebView2 x:Name="webview" Margin="0,72,0,0" />
             </Grid>
         </TabItem>
+
+        <!-- Infomationタブ -->
         <TabItem>
             <TabItem.Header>
-                <StackPanel Width="auto" Height="auto">
-                    <materialDesign:PackIcon
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Center"
-                        Kind="Info" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="12"
-                        Text="Infomation" />
+                <StackPanel>
+                    <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Info" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Text="Infomation" />
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer>
                 <Grid>
-                    <StackPanel
-                        Name="StackPanel_Info"
-                        Width="Auto"
-                        Height="Auto">
-                        <materialDesign:ColorZone
-                            Width="336"
-                            Height="46"
-                            Mode="Light">
+                    <StackPanel Name="StackPanel_Info">
+                        <materialDesign:ColorZone Width="336" Height="46" Mode="Light">
                             <Grid
                                 Name="searchFore"
                                 Width="336"
@@ -351,11 +304,7 @@
                                     Margin="303,-3,0,0"
                                     Click="Info_Search"
                                     Style="{DynamicResource MaterialDesignToolButton}">
-                                    <materialDesign:PackIcon
-                                        Width="23"
-                                        Height="22"
-                                        Kind="Search"
-                                        Opacity=".56" />
+                                    <materialDesign:PackIcon Width="23" Height="22" Kind="Search" Opacity=".56" />
                                 </Button>
                             </Grid>
                         </materialDesign:ColorZone>
@@ -370,16 +319,8 @@
                                 <GroupBox.HeaderTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <materialDesign:PackIcon
-                                                Width="32"
-                                                Height="32"
-                                                VerticalAlignment="Center"
-                                                Kind="ImageArea" />
-                                            <TextBlock
-                                                Margin="8,0,0,0"
-                                                VerticalAlignment="Center"
-                                                Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                                                Text="{Binding}" />
+                                            <materialDesign:PackIcon Width="32" Height="32" VerticalAlignment="Center" Kind="ImageArea" />
+                                            <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </GroupBox.HeaderTemplate>
@@ -411,53 +352,33 @@
                 </Grid>
             </ScrollViewer>
         </TabItem>
+
+        <!-- Settingsタブ -->
         <TabItem>
             <TabItem.Header>
-                <StackPanel Width="auto" Height="auto">
-                    <materialDesign:PackIcon
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Center"
-                        Kind="Settings" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="12"
-                        Text="Settings" />
+                <StackPanel>
+                    <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Settings" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Text="Settings" />
                 </StackPanel>
             </TabItem.Header>
             <StackPanel>
                 <Grid Height="56">
-                    <Label
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Content="yt-dlp関連の設定"
-                        FontSize="30"
-                        FontStyle="Italic" />
+                    <Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="yt-dlp関連の設定" FontSize="30" FontStyle="Italic" />
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="442"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="常に高品質動画をダウンロードする（デフォルトではオン）" />
+                    <Label Width="442" Margin="34,16,0,12" HorizontalAlignment="Left" Content="常に高品質動画をダウンロードする（デフォルトではオン）" />
                     <ToggleButton
                         x:Name="Setdefault"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="SetDefault_Checked"
                         IsChecked="{Binding SetHighQuality}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="Setdefault_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton"/>
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="YouTubeのクッキーを使用する" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="YouTubeのクッキーを使用する" />
                     <ToggleButton
                         Name="cookie"
                         Width="34"
@@ -466,8 +387,6 @@
                         IsChecked="{Binding CookiesIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToggleButton.Checked="cookie_Checked"
-                        ToggleButton.Unchecked="cookie_Unchecked"
                         ToolTip="MaterialDesignSwitchLightToggleButton" />
                     <TextBox
                         x:Name="MyCookies"
@@ -478,22 +397,16 @@
                         Text="{Binding myCookies}" />
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="指定した解像度を強制する" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="指定した解像度を強制する" />
                     <ToggleButton
                         x:Name="SetPixel"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="SetPixel_Checked"
                         IsChecked="{Binding PixelIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="SetPixel_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton" />
                     <ComboBox
                         Name="combo"
                         Margin="190,14,297,10"
@@ -512,22 +425,16 @@
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="指定したコーディックを強制する" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="指定したコーディックを強制する" />
                     <ToggleButton
                         x:Name="CodecToggle"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="CodecToggle_Checked"
                         IsChecked="{Binding CodecIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="CodecToggle_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton"/>
                     <ComboBox
                         Name="codec"
                         Margin="190,14,297,10"
@@ -541,22 +448,16 @@
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="指定したオーディオコーディックを強制する" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="指定したオーディオコーディックを強制する" />
                     <ToggleButton
                         x:Name="Codec_Audio_Toggle"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="Codec_Audio_Toggle_Checked"
                         IsChecked="{Binding CodecAudioIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="Codec_Audio_Toggle_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton" />
                     <ComboBox
                         Name="codec_Audio"
                         Margin="190,14,297,10"
@@ -569,17 +470,12 @@
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="指定した拡張子を強制する" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="指定した拡張子を強制する" />
                     <ToggleButton
                         x:Name="container_Toggle"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="container_Toggle_Checked"
                         IsChecked="{Binding ExtensionIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
@@ -596,22 +492,16 @@
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        Width="151"
-                        Margin="34,16,0,12"
-                        HorizontalAlignment="Left"
-                        Content="音声のみダウンロード" />
+                    <Label Width="151" Margin="34,16,0,12" HorizontalAlignment="Left" Content="音声のみダウンロード" />
                     <ToggleButton
                         x:Name="audio_Only_Toggle"
                         Width="34"
                         Margin="0,2,0,-2"
                         HorizontalAlignment="Left"
-                        Checked="audio_Only_Toggle_Checked"
                         IsChecked="{Binding AudioOnlyIsChecked}"
                         RenderTransformOrigin="0.5,0.5"
                         Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
-                        ToolTip="MaterialDesignSwitchLightToggleButton"
-                        Unchecked="audio_Only_Toggle_Unchecked" />
+                        ToolTip="MaterialDesignSwitchLightToggleButton"/>
                     <ComboBox
                         Name="Only"
                         Margin="190,14,297,10"
@@ -624,20 +514,10 @@
                     </ComboBox>
                 </Grid>
                 <Grid Height="56">
-                    <Button
-                        Width="176"
-                        Margin="0,12,0,12"
-                        HorizontalAlignment="Center"
-                        Click="Button_Click_1"
-                        Content="設定を保存" />
+                    <Button Width="176" Margin="0,12,0,12" HorizontalAlignment="Center" Click="SaveButton" Content="設定を保存" />
                 </Grid>
                 <Grid Height="56">
-                    <Label
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Content="~関連の設定"
-                        FontSize="30"
-                        FontStyle="Italic" />
+                    <Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="~関連の設定" FontSize="30" FontStyle="Italic" />
                 </Grid>
             </StackPanel>
         </TabItem>

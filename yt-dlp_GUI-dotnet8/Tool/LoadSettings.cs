@@ -5,260 +5,173 @@ namespace yt_dlp_GUI_dotnet8.Tool
 {
     internal class LoadSettings
     {
+        private readonly ViewModel _viewModel;
+        private readonly SetJson _setJson = new SetJson();
+        private readonly DownloadSetting _downloadSetting = new DownloadSetting();
+        private bool _useSettingsFile = false;
         public LoadSettings()
         {
-            _viewModel = (App.Current as App).ViewModel;
-            (App.Current as App).ViewModel = _viewModel;
+            _viewModel = (App.Current as App)?.ViewModel ?? throw new NullReferenceException("ViewModel is null");
         }
-        ViewModel _viewModel;
-
-        /// <summary>
-        /// ここで設定をロード
-        /// 2024/02/03作成
-        /// </summary>
-        /// 
-
-        //以下より下は設定のメソッドしかないじゃない。
-        private SetJson setJson = new SetJson();
-        private DownloadSetting downloadSetting = new DownloadSetting();
 
         public void FirstWriteSettings()
         {
             try
             {
-                downloadSetting.AudioCodec = 1;
-                downloadSetting.AudioCodecIsEnable = true;
-                downloadSetting.AudioOnly = 0;
-                downloadSetting.AudioOnlyIsEnable = false;
-                downloadSetting.Codec = 0;
-                downloadSetting.CodecIsEnable = true;
-                downloadSetting.CookiesIsEnable = false;
-                downloadSetting.Cookies = "なし";
-                downloadSetting.Extension = 1;
-                downloadSetting.ExtensionIsEnable = true;
-                downloadSetting.HighQualityVideoIsEnable = true;
-                downloadSetting.Pixel = 5;
-                downloadSetting.PixelIsEnable = true;
+                _downloadSetting.AudioCodec = 1;
+                _downloadSetting.AudioCodecIsEnable = true;
+                _downloadSetting.AudioOnly = 0;
+                _downloadSetting.AudioOnlyIsEnable = false;
+                _downloadSetting.Codec = 0;
+                _downloadSetting.CodecIsEnable = true;
+                _downloadSetting.CookiesIsEnable = false;
+                _downloadSetting.Cookies = "なし";
+                _downloadSetting.Extension = 1;
+                _downloadSetting.ExtensionIsEnable = true;
+                _downloadSetting.HighQualityVideoIsEnable = true;
+                _downloadSetting.Pixel = 5;
+                _downloadSetting.PixelIsEnable = true;
+
+                _setJson.saveJson(_downloadSetting);
+                ApplySettings();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine($"Error in FirstWriteSettings: {ex.Message}");
             }
-
-
-            setJson.saveJson(downloadSetting);
-            Settings_Apply();
         }
-
 
         public void WriteSettings()
         {
-            //なんかスマートじゃないじゃない
             try
             {
-                downloadSetting.AudioCodec = _viewModel.CodecAudio;
-                downloadSetting.AudioCodecIsEnable = _viewModel.CodecAudioIsChecked;
-                downloadSetting.AudioOnly = _viewModel.AudioOnly;
-                downloadSetting.AudioOnlyIsEnable = _viewModel.AudioOnlyIsChecked;
-                downloadSetting.Codec = _viewModel.Codec;
-                downloadSetting.CodecIsEnable = _viewModel.CodecIsChecked;
-                downloadSetting.CookiesIsEnable = _viewModel.CookiesIsChecked;
-                if (_viewModel.myCookies != null)
-                {
-                    downloadSetting.Cookies = _viewModel.myCookies;
-                }
-                else
-                {
-                    downloadSetting.Cookies = "";
-                }
-                downloadSetting.Extension = _viewModel.Extension;
-                downloadSetting.ExtensionIsEnable = _viewModel.ExtensionIsChecked;
-                downloadSetting.HighQualityVideoIsEnable = _viewModel.SetHighQuality;
-                downloadSetting.Pixel = _viewModel.Pixel;
-                downloadSetting.PixelIsEnable = _viewModel.PixelIsChecked;
+                _downloadSetting.AudioCodec = _viewModel.CodecAudio;
+                _downloadSetting.AudioCodecIsEnable = _viewModel.CodecAudioIsChecked;
+                _downloadSetting.AudioOnly = _viewModel.AudioOnly;
+                _downloadSetting.AudioOnlyIsEnable = _viewModel.AudioOnlyIsChecked;
+                _downloadSetting.Codec = _viewModel.Codec;
+                _downloadSetting.CodecIsEnable = _viewModel.CodecIsChecked;
+                _downloadSetting.CookiesIsEnable = _viewModel.CookiesIsChecked;
+                _downloadSetting.Cookies = _viewModel.myCookies ?? string.Empty;
+                _downloadSetting.Extension = _viewModel.Extension;
+                _downloadSetting.ExtensionIsEnable = _viewModel.ExtensionIsChecked;
+                _downloadSetting.HighQualityVideoIsEnable = _viewModel.SetHighQuality;
+                _downloadSetting.Pixel = _viewModel.Pixel;
+                _downloadSetting.PixelIsEnable = _viewModel.PixelIsChecked;
+
+                _setJson.saveJson(_downloadSetting);
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine($"Error in WriteSettings: {ex.Message}");
             }
-
-
-            setJson.saveJson(downloadSetting);
         }
 
-        private bool UseSettingsFile = false;
-
-        public void Settings_Apply()
+        public void ApplySettings()
         {
-            //設定ファイルへのアクセスを制限
-            UseSettingsFile = true;
-            if (!File.Exists(@".\Settings.json"))
+            try
             {
-                StreamWriter sw = new StreamWriter(@".\Settings.json");
-                sw.WriteLine(" ");
-                sw.Close();
-                FirstWriteSettings();
+                _useSettingsFile = true;
+
+                if (!File.Exists(@".\Settings.json"))
+                {
+                    using (StreamWriter sw = new StreamWriter(@".\Settings.json"))
+                    {
+                        sw.WriteLine(" ");
+                    }
+
+                    FirstWriteSettings();
+                }
+                else
+                {
+                    SetJson setJson = new SetJson();
+                    var loadedSettings = setJson.readJson();
+
+                    _viewModel.CookiesIsChecked = loadedSettings.CookiesIsEnable;
+                    _viewModel.PixelIsChecked = loadedSettings.PixelIsEnable;
+                    _viewModel.CodecIsChecked = loadedSettings.CodecIsEnable;
+                    _viewModel.CodecAudioIsChecked = loadedSettings.AudioCodecIsEnable;
+                    _viewModel.ExtensionIsChecked = loadedSettings.ExtensionIsEnable;
+                    _viewModel.myCookies = loadedSettings.Cookies?.Replace("\r\n", "").Replace("\"", "");
+                    _viewModel.AudioOnlyIsChecked = loadedSettings.AudioOnlyIsEnable;
+                    _viewModel.Pixel = loadedSettings.Pixel;
+                    _viewModel.Codec = loadedSettings.Codec;
+                    _viewModel.CodecAudio = loadedSettings.AudioCodec;
+                    _viewModel.Extension = loadedSettings.Extension;
+                    _viewModel.AudioOnly = loadedSettings.AudioOnly;
+
+                    SetRecent(); // Load recent history
+                }
             }
-            else
+            catch (Exception ex)
             {
-                //設定ロード＾＾
-                //ごり押ししすぎ
-                SetJson setJson = new SetJson();
-
-                var Load = setJson.readJson();
-                _viewModel.CookiesIsChecked = Load.CookiesIsEnable;
-                _viewModel.PixelIsChecked = Load.PixelIsEnable;
-                _viewModel.CodecIsChecked = Load.CodecIsEnable;
-                _viewModel.CodecAudioIsChecked = Load.AudioCodecIsEnable;
-                _viewModel.ExtensionIsChecked = Load.ExtensionIsEnable;
-                if (Load.Cookies != null)
-                {
-                    _viewModel.myCookies = Load.Cookies.Replace("\r\n", "").Replace("\"", "");
-                }
-                _viewModel.AudioOnlyIsChecked = Load.AudioOnlyIsEnable;
-                _viewModel.Pixel = Load.Pixel;
-                _viewModel.Codec = Load.Codec;
-                _viewModel.CodecAudio = Load.AudioCodec;
-                _viewModel.Extension = Load.Extension;
-                _viewModel.AudioOnly = Load.AudioOnly;
-
-                //設定反映(´・ω・)
-                /*cookie.IsChecked = Cookies_Enabled;
-                SetPixel.IsChecked = SetPixel_Enabled;
-                CodecToggle.IsChecked = Codec_Enabled;
-                Codec_Audio_Toggle.IsChecked = Codec_Audio_Enabled;
-                container_Toggle.IsChecked = container_Enabled;
-                audio_Only_Toggle.IsChecked = Audio_Only_Enabled;
-                if (Codec_Audio != -1)
-                    AudioConversion = AudioList[Codec_Audio];
-                else
-                    AudioConversion = AudioList[0];
-
-                if (Audio_Only_Value != -1)
-                    AudioOnlyConversion = AudioList[Audio_Only_Value];
-                else
-                    AudioOnlyConversion = AudioList[0];
-
-                if (Codec != -1)
-                    videoFormat = Codec_List[Codec];
-                else
-                    videoFormat = Codec_List[0];
-
-                if (Merge != -1)
-                {
-                    mergeOutputFormat = mergeList[Merge];
-                }
-                else
-                {
-                    mergeOutputFormat = mergeList[0];
-                }
-
-                if (!(Pixel == -1))
-                {
-                    video_Value = video[Pixel];
-                    combo.SelectedIndex = Pixel;
-                }
-                else
-                {
-                    video_Value = video[5];
-                    combo.SelectedIndex = 0;
-                }
-
-                if (!(Codec == -1))
-                {
-                    codec.SelectedIndex = Codec;
-                }
-                else
-                {
-                    codec.SelectedIndex = 0;
-                }
-
-                if (!(Codec_Audio == -1))
-                {
-                    codec_Audio.SelectedIndex = Codec_Audio;
-                    Audio_Value = audio[Codec_Audio];
-                }
-                else
-                {
-                    codec_Audio.SelectedIndex = 0;
-                    Audio_Value = audio[1];
-                }
-
-                if (!(Merge == -1))
-                {
-                    container.SelectedIndex = Merge;
-                }
-                else
-                {
-                    container.SelectedIndex = 0;
-                }
-
-                if (!(Audio_Only_Value == -1))
-                {
-                    Only.SelectedIndex = Audio_Only_Value;
-                }
-                else
-                {
-                    Only.SelectedIndex = 0;
-                }
-                PasswordBox.Text = Cookie;
-            }*/
-
-                SetRecent(); //履歴セット
-
-                //設定ファイルへのアクセスを解放
-                UseSettingsFile = false;
+                Debug.WriteLine($"Error in ApplySettings: {ex.Message}");
             }
-
-
-
-
+            finally
+            {
+                _useSettingsFile = false;
+            }
         }
 
         private void SetRecent()
         {
             _viewModel.Recent.Clear();
-            loadInfo();
+            LoadInfo();
         }
-        
-        public string DownloadRecent_Path = @".\Recent\DownloadRecent.txt";
-        public string Recent_Path = @".\Recent";
-        /// <summary>
-        /// ここで履歴を保存する
-        /// </summary>
-        /// <param name="Url"></param>
-        public async void SaveInfo(string Url)
+
+        private readonly string _downloadRecentPath = @".\Recent\DownloadRecent.txt";
+        private readonly string _recentPath = @".\Recent";
+
+        public async void SaveInfo(string url)
         {
-            GetInfomation getInfomation = new GetInfomation();
-            var result = await getInfomation.Infomation(Url);
-            Directory.CreateDirectory(Recent_Path);
-            using (StreamWriter sw = new StreamWriter(DownloadRecent_Path, true))
+            try
             {
-                sw.WriteLine($"{result.Title.ToString()},{Url},{result.Thumbnail}");
-            }
-            loadInfo();
-        }
-        /// <summary>
-        /// 設定を読み込む
-        /// </summary>
-        public void loadInfo()
-        {
-            if (File.Exists(DownloadRecent_Path))
-            {
-                _viewModel.Recent.Clear();
-                using (StreamReader sm = new StreamReader(DownloadRecent_Path))
+                var getInfomation = new GetInfomation();
+                var result = await getInfomation.Infomation(url);
+                Directory.CreateDirectory(_recentPath);
+
+                using (StreamWriter sw = new StreamWriter(_downloadRecentPath, true))
                 {
-                    while (sm.Peek() != -1)
+                    sw.WriteLine($"{result.Title},{url},{result.Thumbnail}");
+                }
+
+                LoadInfo();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in SaveInfo: {ex.Message}");
+            }
+        }
+
+        public void LoadInfo()
+        {
+            try
+            {
+                if (File.Exists(_downloadRecentPath))
+                {
+                    _viewModel.Recent.Clear();
+
+                    using (StreamReader sr = new StreamReader(_downloadRecentPath))
                     {
-                        string[] getInfo = sm.ReadLine().Split(',');
-                        _viewModel.Recent.Add(new ViewModel.VideoInfo { Title = getInfo[0], image = new Uri(getInfo[2]), URI = getInfo[1] });
-                        Debug.WriteLine($"Title = {getInfo[0]},image = new Uri({getInfo[2]}),URI = {getInfo[1]}");
+                        while (sr.Peek() != -1)
+                        {
+                            var getInfo = sr.ReadLine().Split(',');
+                            _viewModel.Recent.Add(new ViewModel.VideoInfo
+                            {
+                                Title = getInfo[0],
+                                image = new Uri(getInfo[2]),
+                                URI = getInfo[1]
+                            });
+
+                            Debug.WriteLine($"Title = {getInfo[0]}, image = new Uri({getInfo[2]}), URI = {getInfo[1]}");
+                        }
                     }
-
-
                 }
             }
-
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in LoadInfo: {ex.Message}");
+            }
         }
     }
 }

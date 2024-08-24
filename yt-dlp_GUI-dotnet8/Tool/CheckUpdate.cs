@@ -11,6 +11,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
         public string ReleaseUrl = "";
         public bool isEnd = false;
         private string now = "2024/08/19 14:00:00";
+        private string last = @".\.lastUpdate.txt";
         public async Task Check(string repo, string owner)
         {
             var github = new GitHubClient(new ProductHeaderValue("yt-dlp-GUI-dotnet8"));
@@ -22,14 +23,19 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 var lastUpdate = "";
                 try
                 {
-                    using (StreamReader sm = new StreamReader(@".\.lastUpdate.txt"))
+                    using (StreamReader sm = new StreamReader(last))
                     {
                         lastUpdate = sm.ReadLine();
                     }
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
-                    lastUpdate = (now);
+                    var dataTime = DateTime.Now;
+                    lastUpdate = dataTime.ToString();
+                    using (StreamWriter sw = new StreamWriter(last,true))
+                    {
+                        sw.WriteLine(now);
+                    }
                 }
 
                 Debug.WriteLine(Convert.ToDateTime(lastUpdate));
@@ -54,7 +60,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
                         isEnd = true;
                     }
                 }
-                else if(repo == "yt-dlp" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime(lastUpdate))
+                else if(repo == "yt-dlp" && latestVersion.DateTime.AddHours(9) > Convert.ToDateTime(now))
                 {
                     var update = MessageBox.Show($"新しいYT-DLPのバージョン({latestRelease.TagName})が見つかりました。\nアップデートしますか？", "お知らせ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (update != MessageBoxResult.Yes)

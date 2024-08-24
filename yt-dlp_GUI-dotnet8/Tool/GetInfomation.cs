@@ -26,7 +26,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
         public async Task<FormatData[]> CodecInfomation(VideoData data)
         {
 #pragma warning disable CS8603 // Null 参照戻り値である可能性があります。
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 ObservableCollection<Formats> VideoFormats = new ObservableCollection<Formats>(); //コーディック情報を格納
                 FormatData[] formats = null;
@@ -47,6 +47,8 @@ namespace yt_dlp_GUI_dotnet8.Tool
                 {
                     //MessageBox.Show("何らかのエラーにより、処理ができませんでした。\nURLが正しいかご確認ください。");
                     Debug.WriteLine(e);
+                    formats = Array.Empty<FormatData>();
+                    return formats;
                 }
                 return formats;
 
