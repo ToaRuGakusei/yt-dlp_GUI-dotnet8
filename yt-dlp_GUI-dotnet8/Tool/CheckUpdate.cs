@@ -10,7 +10,7 @@ namespace yt_dlp_GUI_dotnet8.Tool
     {
         public string ReleaseUrl = "";
         public bool isEnd = false;
-        private string now = "2024/08/19 14:00:00";
+        private string now = "2024/08/24 19:00:00";
         private string last = @".\.lastUpdate.txt";
         public async Task Check(string repo, string owner)
         {
